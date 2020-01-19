@@ -19,12 +19,11 @@ const loop = game => {
 
 const create = canvas => {
   const renderer = Renderer.create(canvas)
-  const player1 = Player.create(canvas)
-  const player2 = Player.create(canvas)
+  const players = Array(25).fill(null).map(() => Player.create(canvas))
 
   return {
     renderer,
-    players: [player1, player2],
+    players,
     running: false
   }
 }

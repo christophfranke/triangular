@@ -37,10 +37,10 @@ const normalize = v => ({
   y: v.y / distance(v)
 })
 
-const RANGE = 50
+const RANGE = 30
 const MAX_INTENSITY = RANGE
-const FACTOR = 0.3
-const intensity = diff => diff < 0 ? MAX_INTENSITY : Math.min(RANGE / diff, MAX_INTENSITY)
+const FACTOR = 1
+const intensity = diff => diff <= 0 ? MAX_INTENSITY : Math.min(RANGE / diff, MAX_INTENSITY)
 const collide = game => {
   game.players.forEach(player => {
     const blocks = []
@@ -84,17 +84,18 @@ const collide = game => {
       })
     }
 
-    game.players.filter(other => player !== other).forEach(other => {
-      if (distance(player.position, other.position) < RANGE) {
+    game.players.filter(other => player !== other)
+      .map(other => other.position)
+      .filter(other => distance(player.position, other) < RANGE)
+      .forEach(other => {
         blocks.push({
           force: normalize({
-            x: (player.position.x - other.position.x),
-            y: (player.position.y - other.position.y)
+            x: (player.position.x - other.x),
+            y: (player.position.y - other.y)
           }),
-          intensity: intensity(distance(player.position, other.position))
+          intensity: intensity(distance(player.position, other))
         })
-      }
-    })
+      })
 
     player.collision = {
       x: 0,
