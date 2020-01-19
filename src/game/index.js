@@ -41,6 +41,7 @@ const start = canvas => {
 
 const stop = game => {
   game.running = false
+  Renderer.clear(game)
 }
 
 export default {

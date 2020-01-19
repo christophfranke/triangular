@@ -20,20 +20,6 @@ const create = canvas => {
   }
 }
 
-// const line = (ctx, pos, dir, length, color = null) => {
-//   ctx.moveTo(Math.round(pos.x), Math.round(pos.y))
-//   const to = {
-//     x: pos.x + Math.cos(dir) * length,
-//     y: pos.y + Math.sin(dir) * length
-//   }
-
-//   if (color) {
-//     ctx.strokeStyle = color
-//   }
-
-//   ctx.lineTo(Math.round(to.x), Math.round(to.y))
-// }
-
 const drawPlayer = game => {
   const player = game.player
   const ctx = game.renderer.ctx
@@ -42,9 +28,9 @@ const drawPlayer = game => {
   ctx.beginPath()
 
   ctx.strokeStyle = RED
-  const alpha = 1.4
-  const beta = 0.5
-  const delta = 25
+  const alpha = 1.4 // triangle angle
+  const beta = 0.5 // triangle front offset
+  const delta = 25 // triangle size
   ctx.moveTo(position.x + Math.cos(player.direction) * beta * delta, position.y + Math.sin(player.direction) * beta * delta)
   ctx.lineTo(position.x + Math.cos(player.direction + alpha * Math.PI) * delta, position.y + Math.sin(player.direction + alpha * Math.PI) * delta)
   ctx.lineTo(position.x + Math.cos(player.direction - alpha * Math.PI) * delta, position.y + Math.sin(player.direction - alpha * Math.PI) * delta)
@@ -64,7 +50,15 @@ const draw = game => {
   drawPlayer(game)
 }
 
+const clear = game => {
+  const canvas = game.renderer.canvas
+  const ctx = game.renderer.ctx
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+}
+
 export default {
   create,
-  draw
+  draw,
+  clear
 }
