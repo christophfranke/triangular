@@ -1,18 +1,42 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <canvas ref="canvas" @click="toggle"></canvas>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import Game from '@/game'
 
 export default {
   name: 'home',
-  components: {
-    HelloWorld
+  data () {
+    return {
+      game: null
+    }
+  },
+
+  methods: {
+    toggle () {
+      if (this.game) {
+        Game.stop(this.game)
+        this.game = null
+      } else {
+        this.game = Game.start(this.$refs.canvas)
+      }
+    }
   }
+
 }
 </script>
+
+<style lang="scss" scoped>
+canvas {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  min-height: 100vh;
+  min-width: 100vw;
+}
+</style>
