@@ -24,9 +24,10 @@ const create = canvas => {
   }
 }
 
-const RANGE = 100
-const MAX_INTENSITY = 100
-const FACTOR = 0.5
+const RANGE = 50
+const MAX_INTENSITY = RANGE
+const FACTOR = 0.3
+const intensity = diff => diff < 0 ? MAX_INTENSITY : Math.min(RANGE / diff, MAX_INTENSITY)
 const collide = game => {
   const player = game.player
   const blocks = []
@@ -37,7 +38,7 @@ const collide = game => {
         x: 1,
         y: 0
       },
-      intensity: Math.min(RANGE / player.position.x, MAX_INTENSITY)
+      intensity: intensity(player.position.x)
     })
   }
 
@@ -48,7 +49,7 @@ const collide = game => {
         x: -1,
         y: 0
       },
-      intensity: Math.min(RANGE / (game.renderer.canvas.width - player.position.x), MAX_INTENSITY)
+      intensity: intensity(game.renderer.canvas.width - player.position.x)
     })
   }
 
@@ -59,7 +60,7 @@ const collide = game => {
         x: 0,
         y: 1
       },
-      intensity: Math.min(RANGE / player.position.y, MAX_INTENSITY)
+      intensity: intensity(player.position.y)
     })
   }
 
@@ -70,7 +71,7 @@ const collide = game => {
         x: 0,
         y: -1
       },
-      intensity: Math.min(RANGE / (game.renderer.canvas.height - player.position.y), MAX_INTENSITY)
+      intensity: intensity(game.renderer.canvas.height - player.position.y)
     })
   }
 
