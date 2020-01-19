@@ -20,23 +20,24 @@ const create = canvas => {
   }
 }
 
-const drawPlayer = game => {
-  const player = game.player
-  const ctx = game.renderer.ctx
-  const position = player.position
+const drawPlayers = game => {
+  game.players.forEach(player => {
+    const ctx = game.renderer.ctx
+    const position = player.position
 
-  ctx.beginPath()
+    ctx.beginPath()
 
-  ctx.strokeStyle = RED
-  const alpha = 1.4 // triangle angle
-  const beta = 0.5 // triangle front offset
-  const delta = 25 // triangle size
-  ctx.moveTo(position.x + Math.cos(player.direction) * beta * delta, position.y + Math.sin(player.direction) * beta * delta)
-  ctx.lineTo(position.x + Math.cos(player.direction + alpha * Math.PI) * delta, position.y + Math.sin(player.direction + alpha * Math.PI) * delta)
-  ctx.lineTo(position.x + Math.cos(player.direction - alpha * Math.PI) * delta, position.y + Math.sin(player.direction - alpha * Math.PI) * delta)
-  ctx.lineTo(position.x + Math.cos(player.direction) * beta * delta, position.y + Math.sin(player.direction) * beta * delta)
+    ctx.strokeStyle = RED
+    const alpha = 1.4 // triangle angle
+    const beta = 0.5 // triangle front offset
+    const delta = 25 // triangle size
+    ctx.moveTo(position.x + Math.cos(player.direction) * beta * delta, position.y + Math.sin(player.direction) * beta * delta)
+    ctx.lineTo(position.x + Math.cos(player.direction + alpha * Math.PI) * delta, position.y + Math.sin(player.direction + alpha * Math.PI) * delta)
+    ctx.lineTo(position.x + Math.cos(player.direction - alpha * Math.PI) * delta, position.y + Math.sin(player.direction - alpha * Math.PI) * delta)
+    ctx.lineTo(position.x + Math.cos(player.direction) * beta * delta, position.y + Math.sin(player.direction) * beta * delta)
 
-  ctx.stroke()
+    ctx.stroke()
+  })
 }
 
 const draw = game => {
@@ -47,7 +48,7 @@ const draw = game => {
   ctx.fillStyle = rgba(0, 0, 0)
   rect(ctx, 0, 0, canvas.width, canvas.height)
 
-  drawPlayer(game)
+  drawPlayers(game)
 }
 
 const clear = game => {
