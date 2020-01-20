@@ -1,4 +1,5 @@
 import Input from './input'
+import Collision from './collision'
 
 const THRUST = 0.1
 const TURN = 0.0175 * 2 * Math.PI
@@ -24,118 +25,32 @@ const create = canvas => {
   }
 }
 
-const madd = (a, beta, b) => ({
-  x: a.x + beta * b.x,
-  y: a.y + beta * b.y
-})
-const distance = (pos1, pos2 = { x: 0, y: 0 }) => {
-  const diff = madd(pos1, -1, pos2)
-  return Math.sqrt(diff.x * diff.x + diff.y * diff.y)
-}
-const normalize = v => ({
-  x: v.x / distance(v),
-  y: v.y / distance(v)
-})
-
-const RANGE = 30
-const MAX_INTENSITY = RANGE
-const FACTOR = 1
-const intensity = diff => diff <= 0 ? MAX_INTENSITY : Math.min(RANGE / diff, MAX_INTENSITY)
-const collide = game => {
-  game.players.forEach(player => {
-    const blocks = []
-    if (player.position.x < RANGE) {
-      blocks.push({
-        force: {
-          x: 1,
-          y: 0
-        },
-        intensity: intensity(player.position.x)
-      })
-    }
-
-    if (player.position.x > game.renderer.canvas.width - RANGE) {
-      blocks.push({
-        force: {
-          x: -1,
-          y: 0
-        },
-        intensity: intensity(game.renderer.canvas.width - player.position.x)
-      })
-    }
-
-    if (player.position.y < RANGE) {
-      blocks.push({
-        force: {
-          x: 0,
-          y: 1
-        },
-        intensity: intensity(player.position.y)
-      })
-    }
-
-    if (player.position.y > game.renderer.canvas.height - RANGE) {
-      blocks.push({
-        force: {
-          x: 0,
-          y: -1
-        },
-        intensity: intensity(game.renderer.canvas.height - player.position.y)
-      })
-    }
-
-    game.players.filter(other => player !== other)
-      .map(other => other.position)
-      .filter(other => distance(player.position, other) < RANGE)
-      .forEach(other => {
-        blocks.push({
-          force: normalize({
-            x: (player.position.x - other.x),
-            y: (player.position.y - other.y)
-          }),
-          intensity: intensity(distance(player.position, other))
-        })
-      })
-
-    player.collision = {
-      x: 0,
-      y: 0
-    }
-    blocks.forEach(block => {
-      player.collision.x += FACTOR * block.force.x * block.intensity
-      player.collision.y += FACTOR * block.force.y * block.intensity
-    })
-  })
-
-  game.players.forEach(player => {
-    player.speed.x += player.collision.x
-    player.speed.y += player.collision.y
-    player.position.x += player.collision.x
-    player.position.y += player.collision.y
-  })
-}
-
 const move = game => {
   game.players.forEach(player => {
     player.position.x += player.speed.x
     player.position.y += player.speed.y
 
-    collide(game)
+    // apply all the forces that arise from collision
+    Collision.collide(game)
 
+    // the vehicle is aerodynamic, that means that the drag is much stronger when you go backwards
     const normProjection = (player.speed.x * player.speed.y) !== 0
       ? (Math.cos(player.direction) * player.speed.x + Math.sin(player.direction) * player.speed.y) /
         Math.sqrt(player.speed.x * player.speed.x + player.speed.y * player.speed.y) : 1
 
-    const dragFactor = Input.isDown(Input.LEFT) && Input.isDown(Input.RIGHT) ? 5 : STABILITY - normProjection
+    // press left and right is a step on the break (increases drag dramatically)
+    const dragFactor = STABILITY - normProjection + (Input.isDown(Input.LEFT) && Input.isDown(Input.RIGHT) ? 5 : 0)
 
     player.speed.x *= (1.0 - dragFactor * DRAG)
     player.speed.y *= (1.0 - dragFactor * DRAG)
 
+    // do not thrust when on break
     if (!(Input.isDown(Input.LEFT) && Input.isDown(Input.RIGHT))) {
       player.speed.x += Math.cos(player.direction) * THRUST
       player.speed.y += Math.sin(player.direction) * THRUST
     }
 
+    // and turn
     if (Input.isDown(Input.LEFT)) {
       player.direction -= TURN
     }
