@@ -2,7 +2,8 @@ import Renderer from './renderer'
 import Player from './player'
 import Collision from './collision'
 import Util from './util'
-import LA from './la'
+import Level from './level'
+import Tree from './tree'
 
 const update = game => {
   Player.move(game)
@@ -22,29 +23,21 @@ const loop = game => {
 
 const create = canvas => {
   const renderer = Renderer.create(canvas)
-
-  const { width, height } = canvas
-
-  let point1 = null
-  let point2 = LA.random(width, height)
-  const lines = Array(4).fill(null).map(() => {
-    point1 = point2
-    point2 = LA.random(width, height)
-    return {
-      point1,
-      point2
-    }
-  })
-
-  const tree = Collision.create(canvas, lines)
+  const tree = Tree.create(canvas)
   const colors = [Util.pick(Player.COLORS)]
-  const players = Array(1).fill(null).map(() => Player.create(canvas, tree, colors))
+  const players = Array(1).fill(null).map(() => Player.create(tree, colors))
+  const levels = [Level.cage()]
+  levels.push(Level.create(levels))
+
+  levels.forEach(level => {
+    level.lines.forEach(line => Tree.add(tree, Collision.line(line.point1, line.point2)))
+  })
 
   return {
     renderer,
     players,
     tree,
-    lines,
+    levels,
     running: false
   }
 }

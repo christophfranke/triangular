@@ -59,6 +59,16 @@ const max = (v, w = { x: null, y: null }) => ({
   y: Math.max(v.y, w.y)
 })
 
+const intersect = (line1, line2) => {
+  const normal1 = rotate90(subtract(line1.point1, line1.point2))
+  const offset1 = product(line1.point1, normal1)
+  const normal2 = rotate90(subtract(line2.point1, line2.point2))
+  const offset2 = product(line2.point1, normal2)
+
+  return (product(line2.point1, normal1) - offset1) * (product(line2.point2, normal1) - offset1) < 0 &&
+    (product(line1.point1, normal2) - offset2) * (product(line1.point2, normal2) - offset2) < 0
+}
+
 export default {
   add,
   madd,
@@ -74,6 +84,7 @@ export default {
   random,
   min,
   max,
+  intersect,
   vector,
   v: vector,
   w: vector

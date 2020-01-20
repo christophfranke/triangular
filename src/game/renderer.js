@@ -58,7 +58,8 @@ const drawPlayers = game => {
 
 const drawLines = game => {
   const ctx = game.renderer.ctx
-  game.lines.forEach(line => {
+  const lines = game.levels.reduce((all, level) => all.concat(level.lines), [])
+  lines.forEach(line => {
     const point1 = game.camera(line.point1)
     const point2 = game.camera(line.point2)
 
@@ -73,8 +74,8 @@ const drawLines = game => {
   })
 }
 
-const SIGHT_RANGE = 50
-const CAMERA_MARGIN = 300
+const SIGHT_RANGE = 100
+const CAMERA_MARGIN = 150
 const CAMERA_SMOOTHING = 0.9
 const adjustCamera = game => {
   if (game.players.filter(player => player.alive).length > 0) {

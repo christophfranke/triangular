@@ -129,22 +129,6 @@ const plane = (point, direction) => {
   }
 }
 
-const create = (canvas, lines) => {
-  const { width, height } = canvas
-
-  const tree = Tree.create()
-  Tree.add(tree, plane(LA.v(-5 * width, 0), LA.w(1, 0)))
-  Tree.add(tree, plane(LA.v(0, -5 * height), LA.w(0, 1)))
-  Tree.add(tree, plane(LA.v(5 * width, 0), LA.w(-1, 0)))
-  Tree.add(tree, plane(LA.v(0, 5 * height), LA.w(0, -1)))
-
-  lines.forEach(l => {
-    Tree.add(tree, line(l.point1, l.point2))
-  })
-
-  return tree
-}
-
 const collide = game => {
   game.players.filter(player => player.alive).forEach(player => {
     player.collision = Tree.nodes(game.tree, player.position)
@@ -166,6 +150,5 @@ export default {
   dot,
   plane,
   collide,
-  create,
   RANGE
 }

@@ -3,12 +3,14 @@ import Collision from './collision'
 import Tree from './tree'
 import LA from './la'
 import Util from './util'
+import Level from './level'
 
 const THRUST = 0.1
 const TURN = 0.0175 * 2 * Math.PI
-const DRAG = 0.01
-const STABILITY = 0.9
-const MAX_COLLISION_POWER = 5
+const DRAG = 0.02
+const VEHICLE_FRACTION = 0.6
+const BREAK_DRAG = 3
+const MAX_COLLISION_POWER = 7
 const DIE_FROM_COLLISION = true
 
 const COLORS = [{
@@ -31,19 +33,12 @@ const COLORS = [{
   r: 0,
   g: 255,
   b: 255
-}, {
-  r: 0,
-  g: 0,
-  b: 255
 }]
 
-const create = (canvas, tree, colors) => {
-  const position = {
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height
-  }
+const create = (tree, colors) => {
+  const position = LA.add(Level.START_CAGE.min, LA.random(Level.START_CAGE.max.x - Level.START_CAGE.min.x, Level.START_CAGE.max.y - Level.START_CAGE.min.y))
 
-  const direction = 2 * Math.PI * Math.random()
+  const direction = 1.5 * Math.PI
   const speed = {
     x: 0,
     y: 0
@@ -105,7 +100,7 @@ const move = game => {
         Math.sqrt(player.speed.x * player.speed.x + player.speed.y * player.speed.y) : 1
 
     // press left and right is a step on the break (increases drag dramatically)
-    const dragFactor = STABILITY - normProjection + (breaking ? 5 : 0)
+    const dragFactor = VEHICLE_FRACTION - normProjection + (breaking ? BREAK_DRAG : 0)
 
     player.speed.x *= (1.0 - dragFactor * DRAG)
     player.speed.y *= (1.0 - dragFactor * DRAG)
