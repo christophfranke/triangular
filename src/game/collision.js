@@ -95,75 +95,14 @@ const create = canvas => {
 }
 
 const collide = game => {
-  game.players.forEach(player => {
+  game.players.filter(player => player.alive).forEach(player => {
     player.collision = Tree.nodes(game.tree, player.position, RANGE)
       .filter(node => node.test(player.position))
       .map(node => node.force(player.position))
       .reduce(LA.add, LA.v())
   })
 
-  game.players.forEach(player => {
-    // const blocks = []
-    // if (player.position.x < RANGE) {
-    //   blocks.push({
-    //     force: {
-    //       x: 1,
-    //       y: 0
-    //     },
-    //     intensity: intensity(player.position.x)
-    //   })
-    // }
-
-    // if (player.position.x > game.renderer.canvas.width - RANGE) {
-    //   blocks.push({
-    //     force: {
-    //       x: -1,
-    //       y: 0
-    //     },
-    //     intensity: intensity(game.renderer.canvas.width - player.position.x)
-    //   })
-    // }
-
-    // if (player.position.y < RANGE) {
-    //   blocks.push({
-    //     force: {
-    //       x: 0,
-    //       y: 1
-    //     },
-    //     intensity: intensity(player.position.y)
-    //   })
-    // }
-
-    // if (player.position.y > game.renderer.canvas.height - RANGE) {
-    //   blocks.push({
-    //     force: {
-    //       x: 0,
-    //       y: -1
-    //     },
-    //     intensity: intensity(game.renderer.canvas.height - player.position.y)
-    //   })
-    // }
-
-    // game.players.filter(other => player !== other)
-    //   .map(other => other.position)
-    //   .filter(other => LA.distance(player.position, other) < RANGE)
-    //   .forEach(other => {
-    //     blocks.push({
-    //       force: LA.normalize({
-    //         x: (player.position.x - other.x),
-    //         y: (player.position.y - other.y)
-    //       }),
-    //       intensity: intensity(LA.distance(player.position, other))
-    //     })
-    //   })
-
-    // blocks.forEach(block => {
-    //   player.collision.x += FACTOR * block.force.x * block.intensity
-    //   player.collision.y += FACTOR * block.force.y * block.intensity
-    // })
-  })
-
-  game.players.forEach(player => {
+  game.players.filter(player => player.alive).forEach(player => {
     player.speed.x += player.collision.x
     player.speed.y += player.collision.y
     player.position.x += player.collision.x

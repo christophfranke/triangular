@@ -1,6 +1,7 @@
 import Renderer from './renderer'
 import Player from './player'
 import Collision from './collision'
+import Util from './util'
 
 const update = game => {
   Player.move(game)
@@ -21,7 +22,8 @@ const loop = game => {
 const create = canvas => {
   const renderer = Renderer.create(canvas)
   const tree = Collision.create(canvas)
-  const players = Array(150).fill(null).map(() => Player.create(canvas, tree))
+  const colors = [Util.pick(Player.COLORS)]
+  const players = Array(150).fill(null).map(() => Player.create(canvas, tree, colors))
 
   return {
     renderer,

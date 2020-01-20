@@ -1,5 +1,6 @@
-const rgba = (r, g, b, a = 1) => `rgba(${r}, ${g}, ${b}, ${a})`
-const RED = rgba(255, 0, 0)
+import LA from './la'
+import Player from './player'
+import Util from './util'
 
 const rect = (ctx, x, y, width, height, color = null) => {
   if (color) {
@@ -24,10 +25,12 @@ const drawPlayers = game => {
   game.players.forEach(player => {
     const ctx = game.renderer.ctx
     const position = player.position
+    const collisionIntensity = LA.distance(player.collision)
 
     ctx.beginPath()
 
-    ctx.strokeStyle = RED
+    ctx.strokeStyle = Player.color(player)
+    ctx.fillStyle = Player.color(player, Math.min(1, collisionIntensity / Player.MAX_COLLISION_POWER))
     const alpha = 1.4 // triangle angle
     const beta = 0.5 // triangle front offset
     const delta = 25 // triangle size
@@ -35,8 +38,12 @@ const drawPlayers = game => {
     ctx.lineTo(position.x + Math.cos(player.direction + alpha * Math.PI) * delta, position.y + Math.sin(player.direction + alpha * Math.PI) * delta)
     ctx.lineTo(position.x + Math.cos(player.direction - alpha * Math.PI) * delta, position.y + Math.sin(player.direction - alpha * Math.PI) * delta)
     ctx.lineTo(position.x + Math.cos(player.direction) * beta * delta, position.y + Math.sin(player.direction) * beta * delta)
+    ctx.closePath()
 
-    ctx.stroke()
+    if (player.alive) {
+      ctx.stroke()
+    }
+    ctx.fill()
   })
 }
 
@@ -45,7 +52,7 @@ const draw = game => {
   const ctx = game.renderer.ctx
 
   ctx.clearRect(0, 0, canvas.width, canvas.height)
-  ctx.fillStyle = rgba(0, 0, 0)
+  ctx.fillStyle = Util.rgba(0, 0, 0)
   rect(ctx, 0, 0, canvas.width, canvas.height)
 
   drawPlayers(game)
