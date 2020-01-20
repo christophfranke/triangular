@@ -34,7 +34,7 @@ const rotate90 = v => ({
 })
 
 const product = (v, w = v) => v.x * w.x + v.y * w.y
-const vector = (x = 0, y = 0) => ({ x, y })
+const vector = (x = 0, y = x) => ({ x, y })
 
 const sqDistance = (v, w = { x: 0, y: 0 }) => product(subtract(w, v))
 const distance = (v, w) => Math.sqrt(sqDistance(v, w))
@@ -42,6 +42,16 @@ const distance = (v, w) => Math.sqrt(sqDistance(v, w))
 const random = (x, y) => ({
   x: Math.random() * x,
   y: Math.random() * y
+})
+
+const min = (v, w = { x: null, y: null }) => ({
+  x: Math.min(v.x, w.x),
+  y: Math.min(v.y, w.y)
+})
+
+const max = (v, w = { x: null, y: null }) => ({
+  x: Math.max(v.x, w.x),
+  y: Math.max(v.y, w.y)
 })
 
 export default {
@@ -56,6 +66,9 @@ export default {
   rotate,
   rotate90,
   random,
+  min,
+  max,
+  vector,
   v: vector,
   w: vector
 }

@@ -27,7 +27,7 @@ const create = canvas => {
 
   let point1 = null
   let point2 = LA.random(width, height)
-  const lines = Array(5).fill(null).map(() => {
+  const lines = Array(4).fill(null).map(() => {
     point1 = point2
     point2 = LA.random(width, height)
     return {
@@ -38,7 +38,7 @@ const create = canvas => {
 
   const tree = Collision.create(canvas, lines)
   const colors = [Util.pick(Player.COLORS)]
-  const players = Array(20).fill(null).map(() => Player.create(canvas, tree, colors))
+  const players = Array(100).fill(null).map(() => Player.create(canvas, tree, colors))
 
   return {
     renderer,
