@@ -47,6 +47,20 @@ const drawPlayers = game => {
   })
 }
 
+const drawLines = game => {
+  const ctx = game.renderer.ctx
+  game.lines.forEach(line => {
+    ctx.beginPath()
+
+    ctx.strokeStyle = Util.rgba(255, 255, 255, 1)
+    ctx.moveTo(line.point1.x, line.point1.y)
+    ctx.lineTo(line.point2.x, line.point2.y)
+
+    ctx.closePath()
+    ctx.stroke()
+  })
+}
+
 const draw = game => {
   const canvas = game.renderer.canvas
   const ctx = game.renderer.ctx
@@ -55,6 +69,7 @@ const draw = game => {
   ctx.fillStyle = Util.rgba(0, 0, 0)
   rect(ctx, 0, 0, canvas.width, canvas.height)
 
+  drawLines(game)
   drawPlayers(game)
 }
 

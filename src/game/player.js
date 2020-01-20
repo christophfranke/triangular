@@ -70,7 +70,6 @@ const dieFromCollision = game => {
   })
 
   game.players.filter(player => !player.alive && player.dot).forEach(player => {
-    console.log('player died')
     Tree.remove(game.tree, player.dot)
     player.dot = null
   })
