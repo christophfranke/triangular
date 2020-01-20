@@ -17,7 +17,12 @@ const create = canvas => {
 
   return {
     canvas,
-    ctx
+    ctx,
+    camera: {
+      min: LA.v(0, 0),
+      max: LA.w(canvas.width, canvas.height),
+      factor: Math.max(canvas.width, canvas.height)
+    }
   }
 }
 
@@ -70,6 +75,7 @@ const drawLines = game => {
 
 const SIGHT_RANGE = 50
 const CAMERA_MARGIN = 300
+const CAMERA_SMOOTHING = 0.9
 const adjustCamera = game => {
   if (game.players.filter(player => player.alive).length > 0) {
     const { width, height } = game.renderer.canvas
@@ -87,8 +93,14 @@ const adjustCamera = game => {
 
     const factor = Math.max(max.x - min.x, aspect * (max.y - min.y))
 
-    const translate = pos => LA.subtract(pos, min)
-    const scale = pos => LA.multiply(width / factor, pos)
+    game.renderer.camera = {
+      min: LA.lerp(game.renderer.camera.min, min, CAMERA_SMOOTHING),
+      max: LA.lerp(game.renderer.camera.max, max, CAMERA_SMOOTHING),
+      factor: CAMERA_SMOOTHING * game.renderer.camera.factor + (1.0 - CAMERA_SMOOTHING) * factor
+    }
+
+    const translate = pos => LA.subtract(pos, game.renderer.camera.min)
+    const scale = pos => LA.multiply(width / game.renderer.camera.factor, pos)
 
     const margin = LA.subtract(scale(translate(max)), LA.w(width, height))
     game.camera = pos => LA.madd(scale(translate(pos)), -0.5, margin)

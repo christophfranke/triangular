@@ -38,7 +38,7 @@ const create = canvas => {
 
   const tree = Collision.create(canvas, lines)
   const colors = [Util.pick(Player.COLORS)]
-  const players = Array(100).fill(null).map(() => Player.create(canvas, tree, colors))
+  const players = Array(1).fill(null).map(() => Player.create(canvas, tree, colors))
 
   return {
     renderer,

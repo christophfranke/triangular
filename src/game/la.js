@@ -3,9 +3,14 @@ const add = (v, w) => ({
   y: v.y + w.y
 })
 
-const madd = (a, m, b) => ({
-  x: a.x + m * b.x,
-  y: a.y + m * b.y
+const madd = (v, m, w) => ({
+  x: v.x + m * w.x,
+  y: v.y + m * w.y
+})
+
+const lerp = (v, w, lambda) => ({
+  x: lambda * v.x + (1.0 - lambda) * w.x,
+  y: lambda * v.y + (1.0 - lambda) * w.y
 })
 
 const multiply = (m, v) => ({
@@ -57,6 +62,7 @@ const max = (v, w = { x: null, y: null }) => ({
 export default {
   add,
   madd,
+  lerp,
   subtract,
   multiply,
   distance,
