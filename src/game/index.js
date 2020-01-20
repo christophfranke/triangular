@@ -20,8 +20,8 @@ const loop = game => {
 
 const create = canvas => {
   const renderer = Renderer.create(canvas)
-  const players = Array(25).fill(null).map(() => Player.create(canvas))
   const tree = Collision.create(canvas)
+  const players = Array(150).fill(null).map(() => Player.create(canvas, tree))
 
   return {
     renderer,

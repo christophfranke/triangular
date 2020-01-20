@@ -1,12 +1,13 @@
 import Input from './input'
 import Collision from './collision'
+import Tree from './tree'
 
 const THRUST = 0.1
 const TURN = 0.0175 * 2 * Math.PI
 const DRAG = 0.01
 const STABILITY = 0.9
 
-const create = canvas => {
+const create = (canvas, tree) => {
   const position = {
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height
@@ -18,20 +19,29 @@ const create = canvas => {
     y: 0
   }
 
+  const dot = Collision.dot(position)
+  Tree.add(tree, dot)
+
   return {
     position,
     direction,
-    speed
+    speed,
+    dot
   }
 }
 
 const move = game => {
+  // update collision tree
+  game.players.forEach(player => {
+    Tree.update(player.dot, Collision.dot(player.position))
+  })
+
+  // apply all the forces that arise from collision
+  Collision.collide(game)
+
   game.players.forEach(player => {
     player.position.x += player.speed.x
     player.position.y += player.speed.y
-
-    // apply all the forces that arise from collision
-    Collision.collide(game)
 
     // the vehicle is aerodynamic, that means that the drag is much stronger when you go backwards
     const normProjection = (player.speed.x * player.speed.y) !== 0

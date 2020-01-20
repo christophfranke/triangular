@@ -12,7 +12,8 @@ const ABSOLUT_MAX = {
 }
 
 const RANGE = 30
-const FACTOR = 1
+const SQ_RANGE = RANGE * RANGE
+// const FACTOR = 1
 const intensity = diff => diff <= 0 ? RANGE : Math.min(RANGE / diff, RANGE)
 
 const line = (pos1, pos2) => {
@@ -23,10 +24,21 @@ const line = (pos1, pos2) => {
   }
 }
 
-const dot = pos => {
+const dot = point => {
+  const test = position => point !== position && LA.sqDistance(point, position) < SQ_RANGE
+  const force = position => LA.multiply(intensity(LA.distance(position, point)), LA.normalize(LA.madd(position, -1, point)))
+
+  const min = { ...point }
+  const max = { ...point }
+  const bounds = () => ({
+    min,
+    max
+  })
+
   return {
-    type: 'dot',
-    pos
+    test,
+    force,
+    bounds
   }
 }
 
@@ -91,7 +103,7 @@ const collide = game => {
   })
 
   game.players.forEach(player => {
-    const blocks = []
+    // const blocks = []
     // if (player.position.x < RANGE) {
     //   blocks.push({
     //     force: {
@@ -132,23 +144,23 @@ const collide = game => {
     //   })
     // }
 
-    game.players.filter(other => player !== other)
-      .map(other => other.position)
-      .filter(other => LA.distance(player.position, other) < RANGE)
-      .forEach(other => {
-        blocks.push({
-          force: LA.normalize({
-            x: (player.position.x - other.x),
-            y: (player.position.y - other.y)
-          }),
-          intensity: intensity(LA.distance(player.position, other))
-        })
-      })
+    // game.players.filter(other => player !== other)
+    //   .map(other => other.position)
+    //   .filter(other => LA.distance(player.position, other) < RANGE)
+    //   .forEach(other => {
+    //     blocks.push({
+    //       force: LA.normalize({
+    //         x: (player.position.x - other.x),
+    //         y: (player.position.y - other.y)
+    //       }),
+    //       intensity: intensity(LA.distance(player.position, other))
+    //     })
+    //   })
 
-    blocks.forEach(block => {
-      player.collision.x += FACTOR * block.force.x * block.intensity
-      player.collision.y += FACTOR * block.force.y * block.intensity
-    })
+    // blocks.forEach(block => {
+    //   player.collision.x += FACTOR * block.force.x * block.intensity
+    //   player.collision.y += FACTOR * block.force.y * block.intensity
+    // })
   })
 
   game.players.forEach(player => {
