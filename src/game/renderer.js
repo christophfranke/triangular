@@ -3,7 +3,7 @@ import Player from './player'
 import Util from './util'
 import Stage from './stage'
 
-const DRAW_ACTIVE_STAGES = false
+const DRAW_ACTIVE_STAGES = true
 
 const rect = (ctx, x, y, width, height, color = null) => {
   if (color) {
