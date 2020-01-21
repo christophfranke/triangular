@@ -30,7 +30,7 @@ const drawPlayers = game => {
   game.players.forEach(player => {
     const ctx = game.renderer.ctx
     const position = player.position
-    const collisionIntensity = LA.distance(player.collision)
+    const collisionIntensity = player.collision.intensity
 
     ctx.beginPath()
 

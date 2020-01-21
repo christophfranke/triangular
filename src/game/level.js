@@ -6,8 +6,8 @@ const STAGES_PER_LEVEL = 100
 const LINE_MIN_LENGTH = 500
 const LINE_MAX_LENGTH = 1000
 const MAX_ANGLE_CHANGE = 0.3 * Math.PI
-const MAX_ATTEMPT = 10
-const MAX_ITERATION = 100000
+const MAX_ATTEMPT = 7
+const MAX_ITERATION = 10000
 const START_CAGE = {
   min: LA.v(),
   max: LA.w(MAX_WIDTH)

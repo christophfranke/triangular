@@ -14,6 +14,7 @@ const ABSOLUT_MAX = {
 const RANGE = 30
 const SQ_RANGE = RANGE * RANGE
 const BOUNCYNESS = 0.5
+const DISPLACEMENT = 0.5
 const intensity = distance => distance <= 0 ? RANGE : Math.min(RANGE / distance, RANGE)
 
 const line = (point1, point2) => {
@@ -130,18 +131,23 @@ const plane = (point, direction) => {
 }
 
 const collide = game => {
+  // calculate all collision forces
   game.players.filter(player => player.alive).forEach(player => {
     player.collision = Tree.nodes(game.tree, player.position)
       .filter(node => node.test(player.position))
       .map(node => node.force(player.position))
-      .reduce(LA.add, LA.v())
+      .reduce((collision, force) => ({
+        force: LA.add(collision.force, force),
+        intensity: collision.intensity + LA.distance(force)
+      }), { force: LA.v(), intensity: 0 })
   })
 
+  // displace player and add speed
   game.players.filter(player => player.alive).forEach(player => {
-    player.speed.x += BOUNCYNESS * player.collision.x
-    player.speed.y += BOUNCYNESS * player.collision.y
-    player.position.x += player.collision.x
-    player.position.y += player.collision.y
+    player.speed.x += BOUNCYNESS * player.collision.force.x
+    player.speed.y += BOUNCYNESS * player.collision.force.y
+    player.position.x += DISPLACEMENT * player.collision.force.x
+    player.position.y += DISPLACEMENT * player.collision.force.y
   })
 }
 

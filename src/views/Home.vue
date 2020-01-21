@@ -1,6 +1,7 @@
 <template>
   <div class="home">
     <canvas ref="canvas" @click="toggle"></canvas>
+    <div class="speed" v-if="game">{{ speed }} px/s</div>
   </div>
 </template>
 
@@ -11,12 +12,18 @@ export default {
   name: 'home',
   data () {
     return {
-      game: null
+      game: null,
+      speed: 0,
+      fullscreen: false
     }
   },
 
   methods: {
     openFullscreen () {
+      if (this.fullscreen) {
+        return Promise.resolve()
+      }
+
       const elem = document.documentElement
       if (elem.requestFullscreen) {
         elem.requestFullscreen()
@@ -29,6 +36,7 @@ export default {
       }
 
       return new Promise(resolve => {
+        this.fullscreen = true
         document.addEventListener('fullscreenchange', resolve)
         document.addEventListener('mozfullscreenchange', resolve)
         document.addEventListener('webkitfullscreenchange', resolve)
@@ -54,10 +62,19 @@ export default {
         this.game = null
         // this.closeFullscreen()
       } else {
-        // await this.openFullscreen()
+        await this.openFullscreen()
         this.game = Game.start(this.$refs.canvas)
       }
     }
+  },
+
+  mounted () {
+    const observeSpeed = () => {
+      this.speed = this.game && this.game.players[0] && this.game.players[0].displaySpeed
+      requestAnimationFrame(observeSpeed)
+    }
+
+    observeSpeed()
   }
 
 }
@@ -72,5 +89,13 @@ canvas {
   right: 0;
   min-height: 100vh;
   min-width: 100vw;
+  cursor: none;
+}
+.speed {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: red;
+  font-size: 20px;
 }
 </style>

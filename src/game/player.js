@@ -8,7 +8,7 @@ import Level from './level'
 const THRUST = 0.1
 const TURN = 0.0175 * 2 * Math.PI
 const DRAG = 0.02
-const VEHICLE_FRACTION = 0.6
+const VEHICLE_FRACTION = 0.8
 const BREAK_DRAG = 3
 const MAX_COLLISION_POWER = 7
 const DIE_FROM_COLLISION = true
@@ -61,7 +61,7 @@ const color = (player, alpha = 1) => Util.rgba(player.color.r, player.color.g, p
 
 const dieFromCollision = game => {
   game.players.forEach(player => {
-    player.alive = player.alive && LA.distance(player.collision) <= MAX_COLLISION_POWER
+    player.alive = player.alive && player.collision.intensity <= MAX_COLLISION_POWER
   })
 
   game.players.filter(player => !player.alive && player.dot).forEach(player => {
@@ -71,7 +71,7 @@ const dieFromCollision = game => {
 
   // dead players slowly die from collision
   game.players.filter(player => !player.alive).forEach(player => {
-    player.collision = LA.multiply(0.9, player.collision)
+    player.collision.intensity *= 0.9
   })
 }
 
@@ -79,6 +79,10 @@ const move = game => {
   // update collision tree
   game.players.filter(player => player.dot).forEach(player => {
     Tree.update(player.dot, Collision.dot(player.position))
+  })
+
+  game.players.forEach(player => {
+    player.displaySpeed = Math.round(LA.distance(player.speed) * 60)
   })
 
   // apply all the forces that arise from collision
