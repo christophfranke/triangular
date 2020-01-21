@@ -232,7 +232,6 @@ const dropBehind = game => {
       stage.destruct()
     })
     game.stages = game.stages.slice(dropBefore)
-    console.log(game.stages)
   }
 }
 
