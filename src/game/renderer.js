@@ -75,6 +75,27 @@ const drawLines = game => {
   })
 }
 
+const drawActiveStages = game => {
+  const ctx = game.renderer.ctx
+  ctx.fillStyle = Util.rgba(255, 255, 255, 0.1)
+  game.stages.filter(stage => stage.players.length > 0).forEach(stage => {
+    const a = game.camera(stage.leftLine.point1)
+    const b = game.camera(stage.leftLine.point2)
+    const c = game.camera(stage.rightLine.point2)
+    const d = game.camera(stage.rightLine.point1)
+
+    ctx.beginPath()
+    ctx.moveTo(a.x, a.y)
+    ctx.lineTo(b.x, b.y)
+    ctx.lineTo(c.x, c.y)
+    ctx.lineTo(d.x, d.y)
+    ctx.lineTo(a.x, a.y)
+
+    ctx.closePath()
+    ctx.fill()
+  })
+}
+
 const SIGHT_RANGE = 100
 const CAMERA_MARGIN = 150
 const CAMERA_SMOOTHING = 0.9
@@ -118,6 +139,7 @@ const draw = game => {
   rect(ctx, 0, 0, canvas.width, canvas.height)
 
   adjustCamera(game)
+  drawActiveStages(game)
   drawLines(game)
   drawPlayers(game)
 }

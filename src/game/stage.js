@@ -178,14 +178,29 @@ const cage = game => {
   return result
 }
 
+const crossStageBorder = (stage, player) => {
+  if (stage.players.includes(player)) {
+    stage.players = stage.players.filter(p => p !== player)
+  } else {
+    stage.players.push(player)
+  }
+}
+
 const initialize = (game, stage) => {
   const lines = [stage.leftLine, stage.rightLine].concat(stage.extraLines || [])
   const collisionLines = lines.map(line => Collision.line(line.point1, line.point2))
-
   collisionLines.forEach(line => Tree.add(game.tree, line))
+
+  const triggerLines = [
+    Collision.triggerLine(stage.leftLine.point1, stage.rightLine.point1, player => crossStageBorder(stage, player)),
+    Collision.triggerLine(stage.leftLine.point2, stage.rightLine.point2, player => crossStageBorder(stage, player))
+  ]
+  triggerLines.forEach(line => Tree.add(game.tree, line))
+  stage.players = []
 
   stage.destruct = () => {
     collisionLines.forEach(line => Tree.remove(game.tree, line))
+    triggerLines.forEach(line => Tree.remove(game.tree, line))
     stage.destruct = () => {}
   }
 }

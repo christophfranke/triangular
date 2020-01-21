@@ -18,6 +18,41 @@ const FRICTION = 0.2
 const SHIELD_FORCE = 0.5
 const intensity = distance => distance <= 0 ? RANGE : Math.min(RANGE / distance, RANGE)
 
+const triggerLine = (point1, point2, fn) => {
+  const test = () => false
+  const force = () => LA.vector()
+  const min = {
+    x: Math.min(ABSOLUT_MIN.x, point1.x, point2.x),
+    y: Math.min(ABSOLUT_MIN.y, point1.y, point2.y)
+  }
+
+  const max = {
+    x: Math.max(ABSOLUT_MAX.x, point1.x, point2.x),
+    y: Math.max(ABSOLUT_MAX.y, point1.y, point2.y)
+  }
+
+  const bounds = () => ({
+    min,
+    max
+  })
+
+  const trigger = (oldPosition, newPosition, player) => {
+    if (LA.intersect({ point1, point2 }, {
+      point1: oldPosition,
+      point2: newPosition
+    })) {
+      fn(player)
+    }
+  }
+
+  return {
+    test,
+    force,
+    bounds,
+    trigger
+  }
+}
+
 const line = (point1, point2) => {
   const difference = LA.subtract(point2, point1)
   const normal = LA.normalize(LA.rotate90(difference))
@@ -197,6 +232,8 @@ const move = game => {
       }
     }, { speed: player.speed, displacement: player.speed, intensity: player.collision.intensity })
 
+    nodes.filter(node => node.trigger).forEach(node => node.trigger(player.position, LA.add(player.position, displacement), player))
+
     player.speed = speed
     player.position = LA.add(player.position, displacement)
     player.collision.intensity += intensity
@@ -213,5 +250,6 @@ export default {
   plane,
   move,
   collide,
+  triggerLine,
   RANGE
 }
