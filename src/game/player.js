@@ -3,7 +3,7 @@ import Collision from './collision'
 import Tree from './tree'
 import LA from './la'
 import Util from './util'
-import Level from './level'
+import Stage from './stage'
 
 const THRUST = 0.1
 const TURN = 0.0175 * 2 * Math.PI
@@ -36,7 +36,7 @@ const COLORS = [{
 }]
 
 const create = (tree, colors) => {
-  const position = LA.add(Level.START_CAGE.min, LA.random(Level.START_CAGE.max.x - Level.START_CAGE.min.x, Level.START_CAGE.max.y - Level.START_CAGE.min.y))
+  const position = LA.add(Stage.START_CAGE.min, LA.random(Stage.START_CAGE.max.x - Stage.START_CAGE.min.x, Stage.START_CAGE.max.y - Stage.START_CAGE.min.y))
 
   const direction = 1.5 * Math.PI
   const speed = {

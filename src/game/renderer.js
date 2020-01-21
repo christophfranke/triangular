@@ -1,6 +1,7 @@
 import LA from './la'
 import Player from './player'
 import Util from './util'
+import Stage from './stage'
 
 const rect = (ctx, x, y, width, height, color = null) => {
   if (color) {
@@ -58,7 +59,7 @@ const drawPlayers = game => {
 
 const drawLines = game => {
   const ctx = game.renderer.ctx
-  const lines = game.levels.reduce((all, level) => all.concat(level.lines), [])
+  const lines = Stage.allLines(game)
   lines.forEach(line => {
     const point1 = game.camera(line.point1)
     const point2 = game.camera(line.point2)

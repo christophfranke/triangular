@@ -62,7 +62,7 @@ export default {
         this.game = null
         // this.closeFullscreen()
       } else {
-        await this.openFullscreen()
+        // await this.openFullscreen()
         this.game = Game.start(this.$refs.canvas)
       }
     }
@@ -89,7 +89,7 @@ canvas {
   right: 0;
   min-height: 100vh;
   min-width: 100vw;
-  cursor: none;
+  // cursor: none;
 }
 .speed {
   position: absolute;
