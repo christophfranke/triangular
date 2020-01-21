@@ -71,7 +71,7 @@ const dieFromCollision = game => {
 
   // dead players slowly die from collision
   game.players.filter(player => !player.alive).forEach(player => {
-    player.collision.intensity *= 0.9
+    player.collision.intensity *= 0.95
   })
 }
 
@@ -99,7 +99,7 @@ const move = game => {
     const breaking = player.alive && Input.isDown(Input.LEFT) && Input.isDown(Input.RIGHT)
 
     // the vehicle is aerodynamic, that means that the drag is much stronger when you go backwards
-    const normProjection = (player.speed.x * player.speed.y) !== 0
+    const normProjection = player.alive && (player.speed.x * player.speed.y) !== 0
       ? (Math.cos(player.direction) * player.speed.x + Math.sin(player.direction) * player.speed.y) /
         Math.sqrt(player.speed.x * player.speed.x + player.speed.y * player.speed.y) : 1
 
