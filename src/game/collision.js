@@ -108,7 +108,7 @@ const line = (point1, point2) => {
       return {
         speed: newSpeed,
         displacement: newDisplacement,
-        intensity: Math.abs(LA.product(speed, normal))
+        intensity: Math.abs(LA.product(displacement, normal))
       }
     } else {
       return {

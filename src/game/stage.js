@@ -2,7 +2,7 @@ import LA from './la'
 import Collision from './collision'
 import Tree from './tree'
 
-const MIN_WIDTH = 100
+const MIN_WIDTH = 150
 const MAX_WIDTH = 1000
 const LINE_MIN_LENGTH = 500
 const LINE_MAX_LENGTH = 1000
@@ -188,6 +188,7 @@ const cage = game => {
 
 const crossStageBorder = (stage, player) => {
   if (stage.players.includes(player)) {
+    player.stage = stage
     stage.players = stage.players.filter(p => p !== player)
   } else {
     stage.players.push(player)

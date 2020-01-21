@@ -1,7 +1,10 @@
 <template>
   <div class="home">
     <canvas ref="canvas" @click="toggle"></canvas>
-    <div class="speed" v-if="game">{{ speed }} px/s</div>
+    <div class="info speed" v-if="game">current {{ speed }} px/s</div>
+    <div class="info average" v-if="game">average {{ averageSpeed }} px/s</div>
+    <div class="info max" v-if="game">maximum {{ maxSpeed }} px/s</div>
+    <div class="info milage" v-if="game">milage {{ milage }} px</div>
   </div>
 </template>
 
@@ -14,7 +17,16 @@ export default {
     return {
       game: null,
       speed: 0,
+      maxSpeed: 0,
+      milage: 0,
+      tick: 0,
       fullscreen: false
+    }
+  },
+
+  computed: {
+    averageSpeed () {
+      return Math.round(60 * this.milage / this.tick)
     }
   },
 
@@ -69,12 +81,25 @@ export default {
   },
 
   mounted () {
-    const observeSpeed = () => {
-      this.speed = this.game && this.game.players[0] && this.game.players[0].displaySpeed
-      requestAnimationFrame(observeSpeed)
+    const observeGame = () => {
+      if (this.game) {
+        const player = this.game.players[0]
+        if (player) {
+          this.speed = this.game.players[0].displaySpeed
+          this.maxSpeed = this.speed ? Math.max(this.maxSpeed, this.speed) : this.maxSpeed
+
+          if (player.alive) {
+            this.tick = this.game && this.game.tick
+            this.milage = this.game && this.game.players[0] && this.game.players[0].milage
+          }
+        }
+      } else {
+        this.maxSpeed = 0
+      }
+      requestAnimationFrame(observeGame)
     }
 
-    observeSpeed()
+    observeGame()
   }
 
 }
@@ -91,11 +116,22 @@ canvas {
   min-width: 100vw;
   // cursor: none;
 }
-.speed {
+.info {
   position: absolute;
-  top: 10px;
   left: 10px;
   color: red;
   font-size: 20px;
+}
+.speed {
+  top: 10px;
+}
+.average {
+  top: 30px;
+}
+.max {
+  top: 50px;
+}
+.milage {
+  top: 70px;
 }
 </style>

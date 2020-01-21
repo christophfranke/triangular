@@ -14,6 +14,7 @@ const update = game => {
 const loop = game => {
   const now = performance.now()
   game.delta = now - game.time
+  game.tick += 1
   update(game)
   game.time = now
 
@@ -34,6 +35,7 @@ const create = canvas => {
     players,
     tree,
     stages,
+    tick: 0,
     running: false
   }
 

@@ -3,6 +3,8 @@ import Player from './player'
 import Util from './util'
 import Stage from './stage'
 
+const DRAW_ACTIVE_STAGES = false
+
 const rect = (ctx, x, y, width, height, color = null) => {
   if (color) {
     ctx.fillStyle = color
@@ -150,7 +152,9 @@ const draw = game => {
   rect(ctx, 0, 0, canvas.width, canvas.height)
 
   adjustCamera(game)
-  drawActiveStages(game)
+  if (DRAW_ACTIVE_STAGES) {
+    drawActiveStages(game)
+  }
   drawLines(game)
   drawPlayers(game)
 }

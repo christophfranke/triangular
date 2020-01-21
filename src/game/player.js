@@ -5,12 +5,12 @@ import LA from './la'
 import Util from './util'
 import Stage from './stage'
 
-const THRUST = 0.1
+const THRUST = 0.125
 const TURN = 0.0175 * 2 * Math.PI
 const DRAG = 0.02
 const VEHICLE_FRACTION = 0.8
 const BREAK_DRAG = 3
-const MAX_COLLISION_POWER = 15
+const MAX_COLLISION_POWER = 25
 const DIE_FROM_COLLISION = true
 
 const COLORS = [{
@@ -54,6 +54,16 @@ const create = (tree, colors) => {
     dot,
     alive: true,
     color: Util.pick(colors)
+  }
+}
+
+const milage = player => {
+  if (player.stage) {
+    let center = LA.lerp(player.stage.leftLine.point1, player.stage.rightLine.point1, 0.5)
+
+    return Math.round(player.stage.milage + LA.distance(center, player.position))
+  } else {
+    return 0
   }
 }
 
@@ -101,7 +111,7 @@ const move = game => {
     // the vehicle is aerodynamic, that means that the drag is much stronger when you go backwards
     const normProjection = player.alive && (player.speed.x * player.speed.y) !== 0
       ? (Math.cos(player.direction) * player.speed.x + Math.sin(player.direction) * player.speed.y) /
-        Math.sqrt(player.speed.x * player.speed.x + player.speed.y * player.speed.y) : 1
+        Math.sqrt(player.speed.x * player.speed.x + player.speed.y * player.speed.y) : 0
 
     // press left and right is a step on the break (increases drag dramatically)
     const dragFactor = VEHICLE_FRACTION - normProjection + (breaking ? BREAK_DRAG : 0)
@@ -122,6 +132,8 @@ const move = game => {
     if (player.alive && Input.isDown(Input.RIGHT)) {
       player.direction += TURN
     }
+
+    player.milage = milage(player)
   })
 }
 
