@@ -35,9 +35,9 @@ const create = canvas => {
     running: false
   }
 
-  const cage = Stage.cage(game)
-  Stage.add(game, cage)
-  Array(10).fill(null).forEach(() => Stage.add(game))
+  Stage.add(game, Stage.cage(game))
+  Array(250).fill(null).forEach(() => Stage.add(game))
+  Stage.add(game, Stage.goal(game))
 
   return game
 }
