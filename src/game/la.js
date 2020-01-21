@@ -8,6 +8,11 @@ const madd = (v, m, w) => ({
   y: v.y + m * w.y
 })
 
+const mmadd = (l, v, m, w) => ({
+  x: l * v.x + m * w.x,
+  y: l * v.y + m * w.y
+})
+
 const lerp = (v, w, lambda) => ({
   x: lambda * v.x + (1.0 - lambda) * w.x,
   y: lambda * v.y + (1.0 - lambda) * w.y
@@ -41,6 +46,11 @@ const rotate90 = v => ({
 const product = (v, w = v) => v.x * w.x + v.y * w.y
 const vector = (x = 0, y = x) => ({ x, y })
 
+const factorize = (v, n1, n2) => ({
+  x: product(v, n1),
+  y: product(v, n2)
+})
+
 const sqDistance = (v, w = { x: 0, y: 0 }) => product(subtract(w, v))
 const distance = (v, w) => Math.sqrt(sqDistance(v, w))
 
@@ -72,6 +82,7 @@ const intersect = (line1, line2) => {
 export default {
   add,
   madd,
+  mmadd,
   lerp,
   subtract,
   multiply,
@@ -81,6 +92,7 @@ export default {
   product,
   rotate,
   rotate90,
+  factorize,
   random,
   min,
   max,

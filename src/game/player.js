@@ -10,7 +10,7 @@ const TURN = 0.0175 * 2 * Math.PI
 const DRAG = 0.02
 const VEHICLE_FRACTION = 0.8
 const BREAK_DRAG = 3
-const MAX_COLLISION_POWER = 7
+const MAX_COLLISION_POWER = 15
 const DIE_FROM_COLLISION = true
 
 const COLORS = [{
@@ -92,10 +92,10 @@ const move = game => {
     dieFromCollision(game)
   }
 
-  game.players.forEach(player => {
-    player.position.x += player.speed.x
-    player.position.y += player.speed.y
+  // move all players
+  Collision.move(game)
 
+  game.players.forEach(player => {
     const breaking = player.alive && Input.isDown(Input.LEFT) && Input.isDown(Input.RIGHT)
 
     // the vehicle is aerodynamic, that means that the drag is much stronger when you go backwards

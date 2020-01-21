@@ -13,8 +13,9 @@ const ABSOLUT_MAX = {
 
 const RANGE = 30
 const SQ_RANGE = RANGE * RANGE
-const BOUNCYNESS = 0.5
-const DISPLACEMENT = 0.5
+const BOUNCYNESS = 0.1
+const FRICTION = 0.2
+const SHIELD_FORCE = 0.5
 const intensity = distance => distance <= 0 ? RANGE : Math.min(RANGE / distance, RANGE)
 
 const line = (point1, point2) => {
@@ -50,6 +51,38 @@ const line = (point1, point2) => {
     return LA.multiply(Math.sign(factor) * intensity(Math.abs(factor)), normal)
   }
 
+  const x = true
+  const displace = (position, speed, displacement) => {
+    if (x && LA.intersect({ point1, point2 }, {
+      point1: position,
+      point2: LA.add(position, displacement)
+    })) {
+      const normDifference = LA.normalize(difference)
+
+      // mirror displacement in line direction
+      const displacementFactorized = LA.factorize(displacement, normal, normDifference)
+      const mirroredDisplacement = LA.mmadd(-displacementFactorized.x * BOUNCYNESS, normal, displacementFactorized.y, normDifference)
+
+      // position + lambda*displacement hits the line
+      const nFactor = offset - LA.product(position, normal)
+      const lambda = nFactor / LA.product(displacement, normal)
+
+      const newSpeed = LA.multiply(1 - FRICTION, LA.lerp(speed, mirroredDisplacement, lambda))
+      const newDisplacement = LA.lerp(displacement, mirroredDisplacement, lambda)
+
+      return {
+        speed: newSpeed,
+        displacement: newDisplacement,
+        intensity: Math.abs(LA.product(speed, normal))
+      }
+    } else {
+      return {
+        speed,
+        displacement
+      }
+    }
+  }
+
   const min = {
     x: Math.min(ABSOLUT_MIN.x, point1.x, point2.x),
     y: Math.min(ABSOLUT_MIN.y, point1.y, point2.y)
@@ -68,7 +101,8 @@ const line = (point1, point2) => {
   return {
     test,
     force,
-    bounds
+    bounds,
+    displace
   }
 }
 
@@ -130,6 +164,7 @@ const plane = (point, direction) => {
   }
 }
 
+// a shield like round collider for the vehicle
 const collide = game => {
   // calculate all collision forces
   game.players.filter(player => player.alive).forEach(player => {
@@ -142,12 +177,33 @@ const collide = game => {
       }), { force: LA.v(), intensity: 0 })
   })
 
-  // displace player and add speed
+  // apply collision forces
   game.players.filter(player => player.alive).forEach(player => {
-    player.speed.x += BOUNCYNESS * player.collision.force.x
-    player.speed.y += BOUNCYNESS * player.collision.force.y
-    player.position.x += DISPLACEMENT * player.collision.force.x
-    player.position.y += DISPLACEMENT * player.collision.force.y
+    player.speed.x += SHIELD_FORCE * player.collision.force.x
+    player.speed.y += SHIELD_FORCE * player.collision.force.y
+  })
+}
+
+const move = game => {
+  game.players.filter(player => player.alive).forEach(player => {
+    const nodes = Tree.nodes(game.tree, player.position, LA.add(player.position, player.speed))
+    const position = player.position
+    const { speed, displacement, intensity } = nodes.filter(node => node.displace).reduce((current, node) => {
+      const result = node.displace(position, current.speed, current.displacement)
+      return {
+        speed: result.speed || current.speed,
+        displacement: result.displacement || current.displacement,
+        intensity: current.intensity + (result.intensity || 0)
+      }
+    }, { speed: player.speed, displacement: player.speed, intensity: player.collision.intensity })
+
+    player.speed = speed
+    player.position = LA.add(player.position, displacement)
+    player.collision.intensity += intensity
+  })
+
+  game.players.filter(player => !player.alive).forEach(player => {
+    player.position = LA.add(player.position, player.speed)
   })
 }
 
@@ -155,6 +211,7 @@ export default {
   line,
   dot,
   plane,
+  move,
   collide,
   RANGE
 }
