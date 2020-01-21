@@ -5,6 +5,8 @@ import Stage from './stage'
 import Tree from './tree'
 
 const update = game => {
+  Stage.dropBehind(game)
+  Stage.createBeyond(game)
   Player.move(game)
   Renderer.draw(game)
 }
@@ -36,9 +38,6 @@ const create = canvas => {
   }
 
   Stage.add(game, Stage.cage(game))
-  Array(25).fill(null).forEach(() => Stage.add(game))
-  Stage.add(game, Stage.goal(game))
-
   return game
 }
 

@@ -62,7 +62,10 @@ const next = game => {
   const { left, right, direction } = current(game)
   const { newDirection, length, width } = random(direction)
 
-  return newLines(left, right, newDirection, length, width)
+  return {
+    length,
+    ...newLines(left, right, newDirection, length, width)
+  }
 }
 
 const test = (game, ...lines) => lines.every(oneLine => allLines(game).every(otherLine => !LA.intersect(oneLine, otherLine)))
@@ -72,12 +75,13 @@ const create = game => {
   while (attempt < MAX_ATTEMPT) {
     attempt += 1
 
-    const { leftLine, rightLine } = next(game)
+    const { leftLine, rightLine, length } = next(game)
     if (test(game, leftLine, rightLine)) {
       const result = {
         leftLine,
         rightLine,
-        attempt
+        attempt,
+        milage: lastStage(game).milage + length
       }
 
       initialize(game, result)
@@ -107,10 +111,11 @@ const updateLastStage = game => {
   while (stage.attempt < MAX_ATTEMPT) {
     stage.attempt += 1
 
-    const { leftLine, rightLine } = next(game)
+    const { leftLine, rightLine, length } = next(game)
     if (test(game, leftLine, rightLine)) {
       stage.leftLine = leftLine
       stage.rightLine = rightLine
+      stage.milage = lastStage(game).milage + length
 
       initialize(game, stage)
       game.stages.push(stage)
@@ -145,7 +150,8 @@ const goal = game => {
   const result = {
     ...newLines(left, right, direction, length, width),
     fixed: true,
-    goal: true
+    goal: true,
+    milage: lastStage(game).milage
   }
 
   initialize(game, result)
@@ -172,6 +178,7 @@ const cage = game => {
       point2: c
     }],
     fixed: true,
+    milage: 0,
     players: [...game.players]
   }
 
@@ -215,10 +222,34 @@ const add = (game, stageParam) => {
   }
 }
 
+const DROP_DISTANCE = 5
+const dropBehind = game => {
+  const minIndex = game.stages.filter(stage => stage.players.length > 0).reduce((min, stage) => Math.min(game.stages.indexOf(stage), min), game.stages.length)
+  if (minIndex - DROP_DISTANCE > 0) {
+    const dropBefore = minIndex - DROP_DISTANCE
+    game.stages.slice(0, dropBefore).forEach(stage => {
+      stage.destruct()
+    })
+    game.stages = game.stages.slice(dropBefore)
+    console.log(game.stages)
+  }
+}
+
+const CREATE_DISTANCE = 10
+const createBeyond = game => {
+  const maxIndex = game.stages.filter(stage => stage.players.length > 0).reduce((max, stage) => Math.max(game.stages.indexOf(stage), max), 0)
+  if (maxIndex + CREATE_DISTANCE > game.stages.length) {
+    const createCount = maxIndex + CREATE_DISTANCE - game.stages.length
+    Array(createCount).fill(null).forEach(() => add(game))
+  }
+}
+
 export default {
   allLines,
   cage,
   goal,
   add,
+  dropBehind,
+  createBeyond,
   START_CAGE
 }

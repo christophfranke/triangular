@@ -19,11 +19,7 @@ const create = canvas => {
   return {
     canvas,
     ctx,
-    camera: {
-      min: LA.v(0, 0),
-      max: LA.w(canvas.width, canvas.height),
-      factor: Math.max(canvas.width, canvas.height)
-    }
+    camera: null
   }
 }
 
@@ -98,8 +94,23 @@ const drawActiveStages = game => {
 
 const SIGHT_RANGE = 100
 const CAMERA_MARGIN = 150
-const CAMERA_SMOOTHING = 0.9
+const CAMERA_SMOOTHING = 0.95
 const adjustCamera = game => {
+  if (!game.renderer.camera) {
+    game.renderer.camera = {
+      min: Stage.allLines(game).reduce((min, line) => ({
+        x: Math.min(min.x, line.point1.x, line.point2.x),
+        y: Math.min(min.y, line.point1.y, line.point2.y)
+      }), { x: null, y: null }),
+      max: Stage.allLines(game).reduce((min, line) => ({
+        x: Math.max(min.x, line.point1.x, line.point2.x),
+        y: Math.max(min.y, line.point1.y, line.point2.y)
+      }), { x: null, y: null })
+    }
+    const { width, height } = game.renderer.canvas
+    const aspect = width / height
+    game.renderer.camera.factor = Math.max(game.renderer.camera.max.x - game.renderer.camera.min.x, aspect * (game.renderer.camera.max.y - game.renderer.camera.min.y))
+  }
   if (game.players.filter(player => player.alive).length > 0) {
     const { width, height } = game.renderer.canvas
     const aspect = width / height
