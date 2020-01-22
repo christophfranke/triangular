@@ -67,49 +67,29 @@ export default {
       })
     },
 
-    closeFullscreen () {
-      if (document.exitFullscreen) {
-        document.exitFullscreen()
-      } else if (document.mozCancelFullScreen) { /* Firefox */
-        document.mozCancelFullScreen()
-      } else if (document.webkitExitFullscreen) { /* Chrome, Safari and Opera */
-        document.webkitExitFullscreen()
-      } else if (document.msExitFullscreen) { /* IE/Edge */
-        document.msExitFullscreen()
-      }
-    },
-
-    stopGame (e) {
+    keyStopGame (e) {
       if (e.code === 'Escape') {
         Game.stop(this.game)
         this.$router.push('/')
       }
     },
 
-    async toggle () {
-      if (this.game && this.game.running) {
-        Game.stop(this.game)
-        // this.closeFullscreen()
-      } else {
-        // await this.openFullscreen()
-        this.game = Game.start(this.$refs.canvas)
-      }
-    }
-  },
-
-  async mounted () {
-    window.addEventListener('fullscreenchange', e => {
+    fullscreenStopGame () {
       if (!isFullscreen()) {
         if (this.game) {
           Game.stop(this.game)
         }
         this.$router.push('/')
       }
-    })
+    }
+  },
+
+  async mounted () {
+    window.addEventListener('fullscreenchange', this.fullscreenStopGame)
+    window.addEventListener('keydown', this.keyStopGame)
 
     await this.openFullscreen()
     this.game = Game.start(this.$refs.canvas)
-    window.addEventListener('keydown', this.stopGame)
 
     const observeGame = () => {
       if (this.game) {
@@ -139,7 +119,8 @@ export default {
   },
 
   destroyed () {
-    window.removeEventListener('keydown', this.stopGame)
+    window.removeEventListener('keydown', this.keyStopGame)
+    window.removeEventListener('fullscreenchange', this.fullscreenStopGame)
   }
 }
 </script>
