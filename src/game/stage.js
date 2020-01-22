@@ -179,7 +179,8 @@ const cage = game => {
     }],
     fixed: true,
     milage: 0,
-    players: [...game.players]
+    players: [...game.players],
+    visited: true
   }
 
   initialize(game, result)
