@@ -5,7 +5,7 @@ import Stage from './stage'
 import Tree from './tree'
 
 const WINNING_POINTS = 5
-const TICKS_AFTER_ALL_DEAD = 60
+const TICKS_AFTER_ALL_DEAD = 180
 
 const stopSoon = game => {
   if (game.deadTicks >= TICKS_AFTER_ALL_DEAD) {
