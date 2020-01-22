@@ -187,11 +187,17 @@ const cage = game => {
 }
 
 const crossStageBorder = (stage, player) => {
+  stage.fixed = true
   if (stage.players.includes(player)) {
     player.stage = stage
     stage.players = stage.players.filter(p => p !== player)
+    if (stage.players.length === 0 && !stage.visited) {
+      stage.owner = player
+      stage.visited = true
+    }
   } else {
     stage.players.push(player)
+    stage.owner = null
   }
 }
 
@@ -223,7 +229,7 @@ const add = (game, stageParam) => {
   }
 }
 
-const DROP_DISTANCE = 5
+const DROP_DISTANCE = 3
 const dropBehind = game => {
   const minIndex = game.stages.filter(stage => stage.players.length > 0).reduce((min, stage) => Math.min(game.stages.indexOf(stage), min), game.stages.length)
   if (minIndex - DROP_DISTANCE > 0) {
@@ -235,7 +241,7 @@ const dropBehind = game => {
   }
 }
 
-const CREATE_DISTANCE = 10
+const CREATE_DISTANCE = 8
 const createBeyond = game => {
   const maxIndex = game.stages.filter(stage => stage.players.length > 0).reduce((max, stage) => Math.max(game.stages.indexOf(stage), max), 0)
   if (maxIndex + CREATE_DISTANCE > game.stages.length) {

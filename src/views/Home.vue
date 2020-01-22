@@ -69,9 +69,8 @@ export default {
     },
 
     async toggle () {
-      if (this.game) {
+      if (this.game && this.game.running) {
         Game.stop(this.game)
-        this.game = null
         // this.closeFullscreen()
       } else {
         // await this.openFullscreen()

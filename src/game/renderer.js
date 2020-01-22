@@ -3,7 +3,9 @@ import Player from './player'
 import Util from './util'
 import Stage from './stage'
 
-const DRAW_ACTIVE_STAGES = true
+const SIGHT_RANGE = 100
+const CAMERA_MARGIN = 350
+const CAMERA_SMOOTHING = 0.95
 
 const rect = (ctx, x, y, width, height, color = null) => {
   if (color) {
@@ -24,6 +26,8 @@ const create = canvas => {
     camera: null
   }
 }
+
+const onScreen = (game, point) => point.x >= 0 && point.x <= game.renderer.canvas.width && point.y >= 0 && point.y <= game.renderer.canvas.height
 
 const drawPlayers = game => {
   game.players.forEach(player => {
@@ -55,48 +59,85 @@ const drawPlayers = game => {
   })
 }
 
-const drawLines = game => {
+const ORIENTATION_LINES = 3
+const ORIENTATION_ALPHA_EMPTY = 0.15
+const ORIENTATION_ALPHA_OWNED = 0.35
+const drawStages = game => {
   const ctx = game.renderer.ctx
-  const lines = Stage.allLines(game)
-  lines.forEach(line => {
-    const point1 = game.camera(line.point1)
-    const point2 = game.camera(line.point2)
+  game.stages.forEach(stage => {
+    const lines = [stage.leftLine, stage.rightLine].concat(stage.extraLines || [])
+    lines.map(({ point1, point2 }) => ({
+      point1: game.camera(point1),
+      point2: game.camera(point2)
+    })).filter(({ point1, point2 }) => onScreen(game, point1) || onScreen(game, point2)).forEach(({ point1, point2 }) => {
+      ctx.beginPath()
 
-    ctx.beginPath()
+      ctx.strokeStyle = stage.owner ? Player.color(stage.owner) : Util.rgba(255, 255, 255, 1)
+      ctx.moveTo(point1.x, point1.y)
+      ctx.lineTo(point2.x, point2.y)
 
-    ctx.strokeStyle = Util.rgba(255, 255, 255, 1)
-    ctx.moveTo(point1.x, point1.y)
-    ctx.lineTo(point2.x, point2.y)
+      ctx.closePath()
+      ctx.stroke()
+    })
 
-    ctx.closePath()
-    ctx.stroke()
+    Array(ORIENTATION_LINES).fill(null).forEach((x, i) => {
+      const factor = (1.0 + i) / (ORIENTATION_LINES + 1.0)
+      const point1 = game.camera(LA.lerp(stage.leftLine.point1, stage.rightLine.point1, factor))
+      const point2 = game.camera(LA.lerp(stage.leftLine.point2, stage.rightLine.point2, factor))
+
+      if (onScreen(game, point1) || onScreen(game, point2)) {
+        ctx.beginPath()
+
+        ctx.strokeStyle = stage.owner ? Player.color(stage.owner, ORIENTATION_ALPHA_OWNED) : Util.rgba(255, 255, 255, ORIENTATION_ALPHA_EMPTY)
+        ctx.moveTo(point1.x, point1.y)
+        ctx.lineTo(point2.x, point2.y)
+
+        ctx.closePath()
+        ctx.stroke()
+      }
+    })
   })
 }
 
-const drawActiveStages = game => {
-  const ctx = game.renderer.ctx
-  ctx.fillStyle = Util.rgba(255, 255, 255, 0.1)
-  game.stages.filter(stage => stage.players.length > 0).forEach(stage => {
-    const a = game.camera(stage.leftLine.point1)
-    const b = game.camera(stage.leftLine.point2)
-    const c = game.camera(stage.rightLine.point2)
-    const d = game.camera(stage.rightLine.point1)
+// const drawLines = game => {
+//   const ctx = game.renderer.ctx
+//   const lines = Stage.allLines(game)
+//   lines.forEach(line => {
+//     const point1 = game.camera(line.point1)
+//     const point2 = game.camera(line.point2)
 
-    ctx.beginPath()
-    ctx.moveTo(a.x, a.y)
-    ctx.lineTo(b.x, b.y)
-    ctx.lineTo(c.x, c.y)
-    ctx.lineTo(d.x, d.y)
-    ctx.lineTo(a.x, a.y)
+//     ctx.beginPath()
 
-    ctx.closePath()
-    ctx.fill()
-  })
-}
+//     ctx.strokeStyle = Util.rgba(255, 255, 255, 1)
+//     ctx.moveTo(point1.x, point1.y)
+//     ctx.lineTo(point2.x, point2.y)
 
-const SIGHT_RANGE = 100
-const CAMERA_MARGIN = 150
-const CAMERA_SMOOTHING = 0.95
+//     ctx.closePath()
+//     ctx.stroke()
+//   })
+// }
+
+// const drawActiveStages = game => {
+//   const ctx = game.renderer.ctx
+//   ctx.fillStyle = Util.rgba(255, 255, 255, 0.1)
+//   game.stages.filter(stage => stage.players.length > 0).forEach(stage => {
+//     const a = game.camera(stage.leftLine.point1)
+//     const b = game.camera(stage.leftLine.point2)
+//     const c = game.camera(stage.rightLine.point2)
+//     const d = game.camera(stage.rightLine.point1)
+
+//     ctx.beginPath()
+//     ctx.moveTo(a.x, a.y)
+//     ctx.lineTo(b.x, b.y)
+//     ctx.lineTo(c.x, c.y)
+//     ctx.lineTo(d.x, d.y)
+//     ctx.lineTo(a.x, a.y)
+
+//     ctx.closePath()
+//     ctx.fill()
+//   })
+// }
+
 const adjustCamera = game => {
   if (!game.renderer.camera) {
     game.renderer.camera = {
@@ -147,15 +188,11 @@ const draw = game => {
   const canvas = game.renderer.canvas
   const ctx = game.renderer.ctx
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
   ctx.fillStyle = Util.rgba(0, 0, 0)
   rect(ctx, 0, 0, canvas.width, canvas.height)
 
   adjustCamera(game)
-  if (DRAW_ACTIVE_STAGES) {
-    drawActiveStages(game)
-  }
-  drawLines(game)
+  drawStages(game)
   drawPlayers(game)
 }
 

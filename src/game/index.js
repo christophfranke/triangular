@@ -4,11 +4,31 @@ import Util from './util'
 import Stage from './stage'
 import Tree from './tree'
 
+const WINNING_POINTS = 5
+const TICKS_AFTER_ALL_DEAD = 60
+
+const stopSoon = game => {
+  if (game.deadTicks >= TICKS_AFTER_ALL_DEAD) {
+    stop(game)
+  } else {
+    game.deadTicks += 1
+  }
+}
+
 const update = game => {
   Stage.dropBehind(game)
   Stage.createBeyond(game)
   Player.move(game)
   Renderer.draw(game)
+
+  if (game.players.every(player => !player.alive)) {
+    stopSoon(game)
+  }
+
+  if (game.players.some(player => player.points >= WINNING_POINTS)) {
+    game.winner = game.players.reduce((winner, player) => (winner && winner.points) > player.points ? winner : player)
+    stopSoon(game)
+  }
 }
 
 const loop = game => {
@@ -36,6 +56,7 @@ const create = canvas => {
     tree,
     stages,
     tick: 0,
+    deadTicks: 0,
     running: false
   }
 
@@ -56,7 +77,6 @@ const start = canvas => {
 
 const stop = game => {
   game.running = false
-  Renderer.clear(game)
 }
 
 export default {

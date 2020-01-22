@@ -134,6 +134,7 @@ const move = game => {
     }
 
     player.milage = milage(player)
+    player.points = game.stages.filter(stage => stage.owner === player).length
   })
 }
 
