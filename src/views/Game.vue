@@ -85,11 +85,20 @@ export default {
   },
 
   async mounted () {
+    if (!this.$store.getters.players.length) {
+      this.$router.push('/')
+    }
+
     window.addEventListener('fullscreenchange', this.fullscreenStopGame)
     window.addEventListener('keydown', this.keyStopGame)
 
-    await this.openFullscreen()
-    this.game = Game.start(this.$refs.canvas)
+    try {
+      await this.openFullscreen()
+    } catch (e) {
+      this.$router.push('/')
+    }
+
+    this.game = Game.start(this.$refs.canvas, this.$store.getters.players)
 
     const observeGame = () => {
       if (this.game) {
@@ -110,7 +119,7 @@ export default {
       }
 
       if (this.game && !this.game.running && this.$refs.canvas) {
-        this.game = Game.start(this.$refs.canvas)
+        this.game = Game.start(this.$refs.canvas, this.$store.getters.players)
         this.maxSpeed = 0
       }
     }

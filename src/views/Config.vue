@@ -4,21 +4,54 @@
     <h1 class="chooseYourColor">Choose your Color</h1>
     <p>Press one of the colored keys to enter the game</p>
     <img src="/kurve_tastatur.png" alt="keys">
-    <div class="activePlayerList"></div>
-    <h1 class="blink" v-show="showBlink">Hit Space to start</h1>
+    <div class="activePlayerList">
+      <span class="player" v-for="(player, index) in $store.getters.players" :style="color(player)" :key="index"></span>
+    </div>
+    <h1 class="blink" v-show="showBlink && $store.getters.players.length > 0">Hit Space to start</h1>
   </div>
 </template>
 
 <script>
 import Blink from '@/mixins/blink'
 import NavigateOnKeypress from '@/mixins/navigateOnKeypress'
+import Player from '@/game/player'
 
 export default {
   name: 'Config',
   mixins: [Blink, NavigateOnKeypress({
-    'Escape': '/',
-    'Space': '/triangular'
-  })]
+    'Escape': '/'
+  })],
+
+  methods: {
+    color (player) {
+      return {
+        backgroundColor: Player.color(player)
+      }
+    },
+    keydown (e) {
+      const player = Player.PLAYERS.find(player => player.left === e.key || player.right === e.key)
+      if (player) {
+        if (this.$store.getters.players.includes(player)) {
+          this.$store.commit('removePlayer', player)
+        } else {
+          this.$store.commit('addPlayer', player)
+        }
+      }
+
+      if (e.code === 'Space' && this.$store.getters.players.length > 0) {
+        this.$router.push('/triangular')
+      }
+    }
+  },
+
+  mounted () {
+    this.$store.commit('resetPlayers')
+    window.addEventListener('keydown', this.keydown)
+  },
+
+  destroyed () {
+    window.removeEventListener('keydown', this.keydown)
+  }
 }
 </script>
 
@@ -47,6 +80,12 @@ export default {
 }
 .activePlayerList {
   text-align: center;
+}
+.player {
+  display: inline-block;
+  width: 3vw;
+  height: 3vw;
+  margin-right: 15px;
 }
 .blink {
   text-align: center;

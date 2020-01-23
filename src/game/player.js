@@ -13,29 +13,49 @@ const BREAK_DRAG = 3
 const MAX_COLLISION_POWER = 25
 const DIE_FROM_COLLISION = true
 
-const COLORS = [{
-  r: 255,
-  g: 0,
-  b: 0
+const PLAYERS = [{
+  color: {
+    r: 255,
+    g: 0,
+    b: 0
+  },
+  left: '1',
+  right: 'q'
 }, {
-  r: 255,
-  g: 255,
-  b: 0
+  color: {
+    r: 0,
+    g: 255,
+    b: 255
+  },
+  left: 'x',
+  right: 'c'
 }, {
-  r: 255,
-  g: 0,
-  b: 255
+  color: {
+    r: 255,
+    g: 255,
+    b: 0
+  },
+  left: 'b',
+  right: 'n'
 }, {
-  r: 0,
-  g: 255,
-  b: 0
+  color: {
+    r: 0,
+    g: 255,
+    b: 0
+  },
+  left: 'ArrowLeft',
+  right: 'ArrowRight'
 }, {
-  r: 0,
-  g: 255,
-  b: 255
+  color: {
+    r: 255,
+    g: 0,
+    b: 255
+  },
+  left: '0',
+  right: 'p'
 }]
 
-const create = (tree, colors) => {
+const create = (tree, player) => {
   const position = LA.add(Stage.START_CAGE.min, LA.random(Stage.START_CAGE.max.x - Stage.START_CAGE.min.x, Stage.START_CAGE.max.y - Stage.START_CAGE.min.y))
 
   const direction = 1.5 * Math.PI
@@ -53,7 +73,7 @@ const create = (tree, colors) => {
     speed,
     dot,
     alive: true,
-    color: Util.pick(colors)
+    ...player
   }
 }
 
@@ -106,7 +126,7 @@ const move = game => {
   Collision.move(game)
 
   game.players.forEach(player => {
-    const breaking = player.alive && Input.isDown(Input.LEFT) && Input.isDown(Input.RIGHT)
+    const breaking = player.alive && Input.isDown(player.left) && Input.isDown(player.right)
 
     // the vehicle is aerodynamic, that means that the drag is much stronger when you go backwards
     const normProjection = player.alive && (player.speed.x * player.speed.y) !== 0
@@ -126,10 +146,10 @@ const move = game => {
     }
 
     // and turn
-    if (player.alive && Input.isDown(Input.LEFT)) {
+    if (player.alive && Input.isDown(player.left)) {
       player.direction -= TURN
     }
-    if (player.alive && Input.isDown(Input.RIGHT)) {
+    if (player.alive && Input.isDown(player.right)) {
       player.direction += TURN
     }
 
@@ -143,5 +163,5 @@ export default {
   move,
   color,
   MAX_COLLISION_POWER,
-  COLORS
+  PLAYERS
 }

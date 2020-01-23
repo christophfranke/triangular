@@ -17,8 +17,8 @@ const move = (x, y) => {
   mouse.y = y
 }
 
-window.addEventListener('keydown', e => down(e.keyCode))
-window.addEventListener('keyup', e => up(e.keyCode))
+window.addEventListener('keydown', e => down(e.key))
+window.addEventListener('keyup', e => up(e.key))
 window.addEventListener('mousemove', e => move(e.clientX, e.clientY))
 
 const isDown = code => keys[code]

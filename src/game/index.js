@@ -1,6 +1,5 @@
 import Renderer from './renderer'
 import Player from './player'
-import Util from './util'
 import Stage from './stage'
 import Tree from './tree'
 
@@ -43,16 +42,14 @@ const loop = game => {
   }
 }
 
-const create = canvas => {
+const create = (canvas, players) => {
   const renderer = Renderer.create(canvas)
   const tree = Tree.create(canvas)
-  const colors = [Util.pick(Player.COLORS)]
-  const players = Array(1).fill(null).map(() => Player.create(tree, colors))
   const stages = []
 
   const game = {
     renderer,
-    players,
+    players: players.map(player => Player.create(tree, player)),
     tree,
     stages,
     tick: 0,
@@ -64,8 +61,8 @@ const create = canvas => {
   return game
 }
 
-const start = canvas => {
-  const game = create(canvas)
+const start = (canvas, players) => {
+  const game = create(canvas, players)
 
   game.running = true
   game.time = performance.now()
