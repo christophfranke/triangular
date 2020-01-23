@@ -31,11 +31,13 @@ const update = game => {
 }
 
 const loop = game => {
-  const now = performance.now()
-  game.delta = now - game.time
-  game.tick += 1
-  update(game)
-  game.time = now
+  // const now = performance.now()
+  // game.delta = now - game.time
+  if (!game.paused) {
+    game.tick += 1
+    update(game)
+  }
+  // game.time = now
 
   if (game.running) {
     requestAnimationFrame(() => loop(game))
@@ -54,6 +56,7 @@ const create = (canvas, players) => {
     stages,
     tick: 0,
     deadTicks: 0,
+    paused: false,
     running: false
   }
 
@@ -78,5 +81,6 @@ const stop = game => {
 
 export default {
   start,
-  stop
+  stop,
+  WINNING_POINTS
 }

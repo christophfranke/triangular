@@ -1,6 +1,7 @@
 <template>
   <div class="background">
-    <h1>Triangular</h1>
+    <!-- eslint-disable-next-line no-irregular-whitespace -->
+    <h1>[tɹia​ŋ​ɡuː​laːɐ̯]</h1>
       <router-link to="/config">
        <h2 class="blink" v-show="showBlink">Press any key to play</h2>
      </router-link>

@@ -1,6 +1,9 @@
 <template>
   <div class="home">
     <canvas ref="canvas"></canvas>
+    <div class="winning">
+      <span class="point" v-for="(point, index) in points" :style="style(point)" :key="index"></span>
+    </div>
     <div class="info speed" v-if="game">current {{ speed }} px/s</div>
     <div class="info average" v-if="game">average {{ averageSpeed }} px/s</div>
     <div class="info max" v-if="game">maximum {{ maxSpeed }} px/s</div>
@@ -10,6 +13,7 @@
 
 <script>
 import Game from '@/game'
+import Player from '@/game/player'
 const isFullscreen = () => !window.screenTop && !window.screenY
 
 export default {
@@ -21,17 +25,43 @@ export default {
       maxSpeed: 0,
       milage: 0,
       tick: 0,
-      fullscreen: false
+      fullscreen: false,
+      players: []
     }
   },
 
   computed: {
     averageSpeed () {
       return Math.round(60 * this.milage / this.tick)
+    },
+    points () {
+      const best = this.players.reduce((best, player) => player.alive && player.milage > best.milage ? player : best, {
+        milage: -1,
+        color: {
+          r: 0,
+          g: 0,
+          b: 0
+        }
+      })
+      const score = Math.min((this.game && this.game.stages.filter(stage => stage.owner === best).length) || 0, Game.WINNING_POINTS)
+
+      return Array(score).fill({
+        filled: true,
+        color: Player.color(best)
+      }).concat(Array(Game.WINNING_POINTS - score).fill({
+        filled: false,
+        color: Player.color(best)
+      }))
     }
   },
 
   methods: {
+    style (point) {
+      return {
+        border: `1px solid ${point.color}`,
+        backgroundColor: point.filled ? point.color : 'black'
+      }
+    },
     openFullscreen () {
       if (this.fullscreen) {
         return Promise.resolve()
@@ -99,6 +129,7 @@ export default {
     }
 
     this.game = Game.start(this.$refs.canvas, this.$store.getters.players)
+    this.players = this.game.players
 
     const observeGame = () => {
       if (this.game) {
@@ -120,6 +151,7 @@ export default {
 
       if (this.game && !this.game.running && this.$refs.canvas) {
         this.game = Game.start(this.$refs.canvas, this.$store.getters.players)
+        this.players = this.game.players
         this.maxSpeed = 0
       }
     }
@@ -162,5 +194,20 @@ canvas {
 }
 .milage {
   top: 70px;
+}
+.winning {
+  position: fixed;
+  top: 10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.point {
+  width: 3vw;
+  height: 3vw;
+  margin-right: 15px;
+  display: block;
 }
 </style>
