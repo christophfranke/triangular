@@ -4,6 +4,7 @@ import Tree from './tree'
 import LA from './la'
 import Util from './util'
 import Stage from './stage'
+import AI from './ai'
 
 const THRUST = 0.125
 const TURN = 0.0175 * 2 * Math.PI
@@ -11,7 +12,7 @@ const DRAG = 0.02
 const VEHICLE_FRACTION = 0.8
 const BREAK_DRAG = 3
 const MAX_COLLISION_POWER = 25
-const DIE_FROM_COLLISION = true
+const DIE_FROM_COLLISION = false
 
 const PLAYERS = [{
   color: {
@@ -52,7 +53,8 @@ const PLAYERS = [{
     b: 255
   },
   left: '0',
-  right: 'p'
+  right: 'p',
+  type: 'ai'
 }]
 
 const create = (tree, player) => {
@@ -73,15 +75,18 @@ const create = (tree, player) => {
     speed,
     dot,
     alive: true,
+    type: player.type || 'input',
     ...player
   }
 }
 
 const milage = player => {
   if (player.stage) {
-    let center = LA.lerp(player.stage.leftLine.point1, player.stage.rightLine.point1, 0.5)
+    const center = LA.lerp(player.stage.leftLine.point1, player.stage.rightLine.point1, 0.5)
+    const normal = LA.normalize(LA.rotate90(LA.subtract(player.stage.rightLine.point1, player.stage.leftLine.point1)))
+    const relativeMilage = LA.product(LA.subtract(player.position, center), normal)
 
-    return Math.round(player.stage.milage + LA.distance(center, player.position))
+    return Math.round(player.stage.milage + relativeMilage)
   } else {
     return 0
   }
@@ -105,6 +110,49 @@ const dieFromCollision = game => {
   })
 }
 
+const updatePlayerInput = (game, player) => {
+  if (player.type === 'input') {
+    player.input = {
+      left: Input.isDown(player.left),
+      right: Input.isDown(player.right)
+    }
+  }
+
+  if (player.type === 'ai') {
+    player.input = AI.calculateInput(game, player)
+  }
+}
+
+const nextSpeed = player => {
+  const breaking = player.alive && player.input.left && player.input.right
+
+  // the vehicle is aerodynamic, that means that the drag is much stronger when you go backwards
+  const normProjection = player.alive && (player.speed.x * player.speed.y) !== 0
+    ? (Math.cos(player.direction) * player.speed.x + Math.sin(player.direction) * player.speed.y) /
+      Math.sqrt(player.speed.x * player.speed.x + player.speed.y * player.speed.y) : 0
+
+  // press left and right is a step on the break (increases drag dramatically)
+  const dragFactor = VEHICLE_FRACTION - normProjection + (breaking ? BREAK_DRAG : 0)
+
+  player.speed.x *= (1.0 - dragFactor * DRAG)
+  player.speed.y *= (1.0 - dragFactor * DRAG)
+
+  // do not thrust when on break
+  if (player.alive && !breaking) {
+    player.speed.x += Math.cos(player.direction) * THRUST
+    player.speed.y += Math.sin(player.direction) * THRUST
+  }
+}
+
+const nextDirection = player => {
+  if (player.alive && player.input.left) {
+    player.direction -= TURN
+  }
+  if (player.alive && player.input.right) {
+    player.direction += TURN
+  }
+}
+
 const move = game => {
   // update collision tree
   game.players.filter(player => player.dot).forEach(player => {
@@ -126,33 +174,9 @@ const move = game => {
   Collision.move(game)
 
   game.players.forEach(player => {
-    const breaking = player.alive && Input.isDown(player.left) && Input.isDown(player.right)
-
-    // the vehicle is aerodynamic, that means that the drag is much stronger when you go backwards
-    const normProjection = player.alive && (player.speed.x * player.speed.y) !== 0
-      ? (Math.cos(player.direction) * player.speed.x + Math.sin(player.direction) * player.speed.y) /
-        Math.sqrt(player.speed.x * player.speed.x + player.speed.y * player.speed.y) : 0
-
-    // press left and right is a step on the break (increases drag dramatically)
-    const dragFactor = VEHICLE_FRACTION - normProjection + (breaking ? BREAK_DRAG : 0)
-
-    player.speed.x *= (1.0 - dragFactor * DRAG)
-    player.speed.y *= (1.0 - dragFactor * DRAG)
-
-    // do not thrust when on break
-    if (player.alive && !breaking) {
-      player.speed.x += Math.cos(player.direction) * THRUST
-      player.speed.y += Math.sin(player.direction) * THRUST
-    }
-
-    // and turn
-    if (player.alive && Input.isDown(player.left)) {
-      player.direction -= TURN
-    }
-    if (player.alive && Input.isDown(player.right)) {
-      player.direction += TURN
-    }
-
+    updatePlayerInput(game, player)
+    nextDirection(player)
+    nextSpeed(player)
     player.milage = milage(player)
     player.points = game.stages.filter(stage => stage.owner === player).length
   })
@@ -162,6 +186,9 @@ export default {
   create,
   move,
   color,
+  nextSpeed,
+  nextDirection,
+  milage,
   MAX_COLLISION_POWER,
   PLAYERS
 }

@@ -118,6 +118,8 @@ const line = (point1, point2) => {
     }
   }
 
+  const intersect = (other1, other2) => LA.intersect({ point1, point2 }, { point1: other1, point2: other2 })
+
   const min = {
     x: Math.min(ABSOLUT_MIN.x, point1.x, point2.x),
     y: Math.min(ABSOLUT_MIN.y, point1.y, point2.y)
@@ -134,6 +136,7 @@ const line = (point1, point2) => {
   })
 
   return {
+    intersect,
     test,
     force,
     bounds,
@@ -203,7 +206,7 @@ const plane = (point, direction) => {
 const collide = game => {
   // calculate all collision forces
   game.players.filter(player => player.alive).forEach(player => {
-    player.collision = Tree.nodes(game.tree, player.position)
+    player.collision = Tree.nodes(game.tree, player.stage)
       .filter(node => node.test(player.position))
       .map(node => node.force(player.position))
       .reduce((collision, force) => ({
@@ -221,7 +224,8 @@ const collide = game => {
 
 const move = game => {
   game.players.filter(player => player.alive).forEach(player => {
-    const nodes = Tree.nodes(game.tree, player.position, LA.add(player.position, player.speed))
+    const nodes = Tree.nodes(game.tree)
+    // console.log(player.stage && player.stage.id, game.tree.stages[player.stage && player.stage.id])
     const position = player.position
     const { speed, displacement, intensity } = nodes.filter(node => node.displace).reduce((current, node) => {
       const result = node.displace(position, current.speed, current.displacement)
@@ -244,6 +248,14 @@ const move = game => {
   })
 }
 
+const intersectsAny = (game, { position, speed, stage }) => {
+  const point1 = position
+  const point2 = LA.add(position, speed)
+  return Tree.nodes(game.tree, stage)
+    .filter(node => node.intersect)
+    .some(node => node.intersect(point1, point2))
+}
+
 export default {
   line,
   dot,
@@ -251,5 +263,6 @@ export default {
   move,
   collide,
   triggerLine,
+  intersectsAny,
   RANGE
 }

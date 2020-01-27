@@ -189,23 +189,29 @@ const cage = game => {
 
 const crossStageBorder = (stage, player) => {
   stage.fixed = true
+  // player is already inside
   if (stage.players.includes(player)) {
-    player.stage = stage
     stage.players = stage.players.filter(p => p !== player)
     if (stage.players.length === 0 && !stage.visited) {
       stage.owner = player
       stage.visited = true
     }
   } else {
+    // player just entered
+    player.stage = stage
     stage.players.push(player)
     stage.owner = null
   }
 }
 
+const stageLines = stage => [stage.leftLine, stage.rightLine].concat(stage.extraLines || [])
+let currentId = 1
 const initialize = (game, stage) => {
-  const lines = [stage.leftLine, stage.rightLine].concat(stage.extraLines || [])
+  stage.id = currentId
+  currentId += 1
+  const lines = stageLines(stage)
   const collisionLines = lines.map(line => Collision.line(line.point1, line.point2))
-  collisionLines.forEach(line => Tree.add(game.tree, line))
+  collisionLines.forEach(line => Tree.add(game.tree, line, stage))
 
   const triggerLines = [
     Collision.triggerLine(stage.leftLine.point1, stage.rightLine.point1, player => crossStageBorder(stage, player)),
@@ -224,6 +230,9 @@ const initialize = (game, stage) => {
 const add = (game, stageParam) => {
   const stage = stageParam || create(game)
   if (game.stages.length === 0 || !lastStage(game).goal) {
+    if (lastStage(game)) {
+      lastStage(game).nextStage = stage
+    }
     game.stages.push(stage)
   } else {
     stage.destruct()

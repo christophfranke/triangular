@@ -1,16 +1,28 @@
 
 const create = () => {
   return {
-    nodes: []
+    stages: {},
+    unstaged: [],
+    all: []
   }
 }
 
-const add = (tree, node) => {
-  tree.nodes.push(node)
+const add = (tree, node, stage = null) => {
+  tree.all.push(node)
+  if (stage && stage.id) {
+    if (!tree.stages[stage.id]) {
+      tree.stages[stage.id] = []
+    }
+    tree.stages[stage.id].push(node)
+  } else {
+    tree.unstaged.push(node)
+  }
 }
 
 const remove = (tree, node) => {
-  tree.nodes = tree.nodes.filter(other => node !== other)
+  // tree.stages = tree.stages.map(stage => stage.filter(n => n !== node))
+  tree.unstaged = tree.unstaged.filter(n => n !== node)
+  tree.all = tree.all.filter(n => n !== node)
 }
 
 const update = (old, replacement) => {
@@ -19,7 +31,7 @@ const update = (old, replacement) => {
   old.bounds = replacement.bounds
 }
 
-const nodes = (tree, position) => tree.nodes
+const nodes = (tree, stage) => (stage && stage.id) ? tree.unstaged.concat(tree.stages[stage.id] || []).concat(stage.nextStage ? tree.stages[stage.nextStage.id] : []) : tree.all
 
 export default {
   create,
