@@ -3,20 +3,15 @@ import Collision from './collision'
 import LA from './la'
 
 const COLLISION_FACTOR = -100
-const MAX_RECURSION = 1
-const ASSUME_CONSTANT_INPUT = 30
-const Q = 5
-const KEEP_CALCULATION = 0
+const Q = 0.95
+const INPUTS = [30]
 
+let positions = []
 const calculateInput = (game, player) => {
-  if (player.input && player.input.keep) {
-    player.input.keep -= 1
-    return player.input
-  }
-
+  positions = []
   return {
-    ...bestPlayer(game, player).input,
-    keep: KEEP_CALCULATION
+    ...bestPlayer(game, createFakePlayer(player)).input,
+    positions
   }
 }
 
@@ -28,7 +23,10 @@ const createFakePlayer = (player, override) => ({
 })
 
 const evaluate = (game, player) => {
-  const value = Player.milage(player) + LA.sqDistance(player.speed)
+  const fakePlayer = createFakePlayer(player, { position: LA.add(player.position, player.speed) })
+  const value = (Player.milage(fakePlayer)) - (player.stage ? player.stage.milage : 0) + LA.sqDistance(player.speed)
+  // const value = LA.sqDistance(player.speed)
+  // const value = Player.milage(fakePlayer) || LA.sqDistance(player.speed)
   if (Collision.intersectsAny(game, player)) {
     return COLLISION_FACTOR * value
   }
@@ -42,18 +40,21 @@ const evaluateInput = (game, player) => {
   return evaluate(game, player)
 }
 
-const samePlayer = (game, player, n = 0) => {
+const next = ({ n, m }) => n === INPUTS[m] ? { n: 0, m: m + 1 } : { n: n + 1, m }
+const minExpectation = ({ n, m }) => 5 * n * m - 100
+const samePlayer = (game, player, iter = { n: 0, m: 0 }) => {
   const fakePlayer = createFakePlayer(player)
   fakePlayer.value = evaluateInput(game, fakePlayer)
   fakePlayer.position = LA.add(fakePlayer.position, fakePlayer.speed)
-  const nextValue = (fakePlayer.value > -1000 && n < MAX_RECURSION * ASSUME_CONSTANT_INPUT
-    ? (n % ASSUME_CONSTANT_INPUT > 0 ? samePlayer(game, fakePlayer, n + 1).value : bestPlayer(game, fakePlayer, n + 1).value) : 0)
+  positions.push(fakePlayer.position)
+  const nextValue = (fakePlayer.value > minExpectation(iter) && iter.m < INPUTS.length
+    ? (iter.n > 0 ? samePlayer(game, fakePlayer, next(iter)).value : bestPlayer(game, fakePlayer, next(iter)).value) : 0)
   fakePlayer.value += Q * nextValue
 
   return fakePlayer
 }
 
-const bestPlayer = (game, player, n = 0) => {
+const bestPlayer = (game, player, iter = { n: 0, m: 0 }) => {
   const best = [{ left: false, right: false },
     { left: true, right: false },
     { left: false, right: true },
@@ -62,8 +63,9 @@ const bestPlayer = (game, player, n = 0) => {
       const fakePlayer = createFakePlayer(player, { input })
       fakePlayer.value = evaluateInput(game, fakePlayer)
       fakePlayer.position = LA.add(fakePlayer.position, fakePlayer.speed)
-      const nextValue = (fakePlayer.value > -1000 && n < MAX_RECURSION * ASSUME_CONSTANT_INPUT
-        ? (n % ASSUME_CONSTANT_INPUT > 0 ? samePlayer(game, fakePlayer, n + 1).value : bestPlayer(game, fakePlayer, n + 1).value) : 0)
+      positions.push(fakePlayer.position)
+      const nextValue = (fakePlayer.value > minExpectation(iter) && iter.m < INPUTS.length
+        ? (iter.n > 0 ? samePlayer(game, fakePlayer, next(iter)).value : bestPlayer(game, fakePlayer, next(iter)).value) : 0)
       fakePlayer.value += Q * nextValue
 
       return fakePlayer.value > best.value ? fakePlayer : best

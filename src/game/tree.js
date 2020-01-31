@@ -31,7 +31,7 @@ const update = (old, replacement) => {
   old.bounds = replacement.bounds
 }
 
-const nodes = (tree, stage) => (stage && stage.id) ? tree.unstaged.concat(tree.stages[stage.id] || []).concat(stage.nextStage ? tree.stages[stage.nextStage.id] : []) : tree.all
+const nodes = (tree, stage) => (stage && stage.id) ? tree.unstaged.concat(tree.stages[stage.id] || []).concat(stage.nextStage ? tree.stages[stage.nextStage.id].concat(stage.nextStage.nextStage ? tree.stages[stage.nextStage.nextStage.id] : []) : []) : tree.all
 
 export default {
   create,

@@ -56,6 +56,18 @@ const drawPlayers = game => {
       ctx.stroke()
     }
     ctx.fill()
+
+    if (player.input.positions) {
+      ctx.beginPath()
+      const start = game.camera(player.position)
+      ctx.moveTo(start.x, start.y)
+      player.input.positions.forEach(position => {
+        const point = game.camera(position)
+        ctx.lineTo(point.x, point.y)
+      })
+      ctx.closePath()
+      ctx.stroke()
+    }
   })
 }
 

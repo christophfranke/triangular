@@ -14,8 +14,8 @@ const ABSOLUT_MAX = {
 const RANGE = 30
 const SQ_RANGE = RANGE * RANGE
 const BOUNCYNESS = 0.1
-const FRICTION = 0.2
-const SHIELD_FORCE = 0.5
+const FRICTION = 0.0
+const SHIELD_FORCE = 0.0
 const intensity = distance => distance <= 0 ? RANGE : Math.min(RANGE / distance, RANGE)
 
 const triggerLine = (point1, point2, fn) => {
@@ -251,7 +251,7 @@ const move = game => {
 const intersectsAny = (game, { position, speed, stage }) => {
   const point1 = position
   const point2 = LA.add(position, speed)
-  return Tree.nodes(game.tree, stage)
+  return Tree.nodes(game.tree)
     .filter(node => node.intersect)
     .some(node => node.intersect(point1, point2))
 }

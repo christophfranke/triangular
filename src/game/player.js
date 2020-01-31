@@ -29,7 +29,8 @@ const PLAYERS = [{
     b: 255
   },
   left: 'x',
-  right: 'c'
+  right: 'c',
+  type: 'ai'
 }, {
   color: {
     r: 255,
