@@ -4,10 +4,9 @@
     <div class="winning">
       <span class="point" v-for="(point, index) in points" :style="style(point)" :key="index"></span>
     </div>
-    <div class="info speed" v-if="game">current {{ speed }} px/s</div>
-    <div class="info average" v-if="game">average {{ averageSpeed }} px/s</div>
-    <div class="info max" v-if="game">maximum {{ maxSpeed }} px/s</div>
-    <div class="info milage" v-if="game">milage {{ milage }} px</div>
+    <div class="info speed" v-if="speed">speed {{ speed }} px/s</div>
+    <div class="info milage" v-if="milage">milage {{ milage }} px</div>
+    <div class="info average" v-if="averageSpeed">average speed {{ averageSpeed }} px/s</div>
   </div>
 </template>
 
@@ -147,7 +146,7 @@ export default {
     this.players = this.game.players
 
     const observeGame = () => {
-      if (this.game) {
+      if (this.game && this.game.players.length === 1) {
         const player = this.game.players[0]
         if (player) {
           this.speed = this.game.players[0].displaySpeed
@@ -195,19 +194,16 @@ canvas {
 .info {
   position: absolute;
   left: 10px;
-  color: red;
-  font-size: 20px;
+  color: white;
+  font-size: 28px;
 }
 .speed {
   top: 10px;
 }
-.average {
-  top: 30px;
-}
-.max {
-  top: 50px;
-}
 .milage {
+  top: 40px;
+}
+.average {
   top: 70px;
 }
 .winning {
