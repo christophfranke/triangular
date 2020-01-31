@@ -5,13 +5,13 @@ import LA from './la'
 import Util from './util'
 import Stage from './stage'
 
-const THRUST = 0.125
+const THRUST = 0.15
 const TURN = 0.0175 * 2 * Math.PI
-const DRAG = 0.02
+const DRAG = 0.03
 const VEHICLE_FRACTION = 0.8
 const BREAK_DRAG = 3
-const MAX_COLLISION_POWER = 25
-const DIE_FROM_COLLISION = true
+const MAX_COLLISION_POWER = 50
+const DIE_FROM_COLLISION = false
 
 const PLAYERS = [{
   color: {
