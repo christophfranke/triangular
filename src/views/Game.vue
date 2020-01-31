@@ -57,8 +57,6 @@ export default {
         score = Math.max(Math.floor(this.milage / 10000), 0) || 0
       }
 
-      console.log(score)
-
       return Array(score).fill({
         filled: true,
         color: Player.color(best, best.milage > 0 ? 1 : 0)
