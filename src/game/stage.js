@@ -206,8 +206,8 @@ const crossStageBorder = (stage, player) => {
 
     if (stage.players.length === 0 && !stage.visited) {
       stage.owner = player
-      stage.visited = true
     }
+    stage.visited = true
 
     if (stage.onLeave) {
       stage.onLeave(player)
