@@ -33,7 +33,7 @@ const normalize = v => ({
   y: v.y / distance(v)
 })
 
-const rotate = (alpha, v) => ({
+const rotate = (alpha, v = { x: 1, y: 0 }) => ({
   x: Math.cos(alpha) * v.x - Math.sin(alpha) * v.y,
   y: Math.sin(alpha) * v.x + Math.cos(alpha) * v.y
 })
@@ -59,14 +59,14 @@ const random = (x, y) => ({
   y: Math.random() * y
 })
 
-const min = (v, w = { x: null, y: null }) => ({
-  x: Math.min(v.x, w.x),
-  y: Math.min(v.y, w.y)
+const min = (...args) => ({
+  x: Math.min(...args.map(v => v.x)),
+  y: Math.min(...args.map(v => v.y))
 })
 
-const max = (v, w = { x: null, y: null }) => ({
-  x: Math.max(v.x, w.x),
-  y: Math.max(v.y, w.y)
+const max = (...args) => ({
+  x: Math.max(...args.map(v => v.x)),
+  y: Math.max(...args.map(v => v.y))
 })
 
 const intersect = (line1, line2) => {

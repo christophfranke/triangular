@@ -26,6 +26,16 @@ const update = game => {
 
   if (game.players.some(player => player.points >= WINNING_POINTS)) {
     game.winner = game.players.reduce((winner, player) => (winner && winner.points) > player.points ? winner : player)
+    game.players.filter(p => p !== game.winner).forEach(other => {
+      other.alive = false
+    })
+    game.stages.forEach(stage => {
+      stage.owner = game.winner
+    })
+    stopSoon(game)
+  }
+
+  if (game.stopSoon) {
     stopSoon(game)
   }
 }

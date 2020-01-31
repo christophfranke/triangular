@@ -4,10 +4,9 @@
     <div class="winning">
       <span class="point" v-for="(point, index) in points" :style="style(point)" :key="index"></span>
     </div>
-    <div class="info speed" v-if="game">current {{ speed }} px/s</div>
-    <div class="info average" v-if="game">average {{ averageSpeed }} px/s</div>
-    <div class="info max" v-if="game">maximum {{ maxSpeed }} px/s</div>
-    <div class="info milage" v-if="game">milage {{ milage }} px</div>
+    <div class="info speed" v-if="speed">speed {{ speed }} px/s</div>
+    <div class="info milage" v-if="milage">milage {{ milage }} px</div>
+    <div class="info average" v-if="averageSpeed">average speed {{ averageSpeed }} px/s</div>
   </div>
 </template>
 
@@ -35,22 +34,35 @@ export default {
       return Math.round(60 * this.milage / this.tick)
     },
     points () {
-      const best = this.players.reduce((best, player) => player.alive && player.milage > best.milage ? player : best, {
+      let score = 0
+      let best = this.players[0] || {
         milage: -1,
         color: {
           r: 0,
           g: 0,
           b: 0
         }
-      })
-      const score = Math.min((this.game && this.game.stages.filter(stage => stage.owner === best).length) || 0, Game.WINNING_POINTS)
+      }
+      if (this.players.length > 1) {
+        best = this.players.reduce((best, player) => player.alive && player.milage > best.milage ? player : best, {
+          milage: -1,
+          color: {
+            r: 0,
+            g: 0,
+            b: 0
+          }
+        })
+        score = Math.min((this.game && this.game.stages.filter(stage => stage.owner === best).length) || 0, Game.WINNING_POINTS)
+      } else {
+        score = Math.max(Math.floor(this.milage / 10000), 0) || 0
+      }
 
       return Array(score).fill({
         filled: true,
-        color: Player.color(best)
+        color: Player.color(best, best.milage > 0 ? 1 : 0)
       }).concat(Array(Game.WINNING_POINTS - score).fill({
         filled: false,
-        color: Player.color(best)
+        color: Player.color(best, best.milage > 0 ? 1 : 0)
       }))
     }
   },
@@ -59,7 +71,7 @@ export default {
     style (point) {
       return {
         border: `1px solid ${point.color}`,
-        backgroundColor: point.filled ? point.color : 'black'
+        backgroundColor: point.filled ? point.color : 'transparent'
       }
     },
     openFullscreen () {
@@ -132,7 +144,7 @@ export default {
     this.players = this.game.players
 
     const observeGame = () => {
-      if (this.game) {
+      if (this.game && this.game.players.length === 1) {
         const player = this.game.players[0]
         if (player) {
           this.speed = this.game.players[0].displaySpeed
@@ -180,19 +192,16 @@ canvas {
 .info {
   position: absolute;
   left: 10px;
-  color: red;
-  font-size: 20px;
+  color: white;
+  font-size: 28px;
 }
 .speed {
   top: 10px;
 }
-.average {
-  top: 30px;
-}
-.max {
-  top: 50px;
-}
 .milage {
+  top: 40px;
+}
+.average {
   top: 70px;
 }
 .winning {

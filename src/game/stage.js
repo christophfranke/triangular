@@ -151,7 +151,17 @@ const goal = game => {
     ...newLines(left, right, direction, length, width),
     fixed: true,
     goal: true,
-    milage: lastStage(game).milage
+    milage: lastStage(game).milage,
+    onEnter: player => {
+      game.stopSoon = true
+      game.stages.forEach(stage => {
+        stage.owner = player
+      })
+      game.players.filter(p => p !== player).forEach(other => {
+        other.alive = false
+      })
+      result.destruct()
+    }
   }
 
   initialize(game, result)
@@ -189,18 +199,26 @@ const cage = game => {
 
 const crossStageBorder = (stage, player) => {
   stage.fixed = true
-  // player is already inside
   if (stage.players.includes(player)) {
+    // leaving stage
     stage.players = stage.players.filter(p => p !== player)
     if (stage.players.length === 0 && !stage.visited) {
       stage.owner = player
-      stage.visited = true
+    }
+    stage.visited = true
+
+    if (stage.onLeave) {
+      stage.onLeave(player)
     }
   } else {
-    // player just entered
-    player.stage = stage
+    // entering stage
     stage.players.push(player)
     stage.owner = null
+    player.stage = stage
+
+    if (stage.onEnter) {
+      stage.onEnter(player)
+    }
   }
 }
 
@@ -256,7 +274,11 @@ const createBeyond = game => {
   const maxIndex = game.stages.filter(stage => stage.players.length > 0).reduce((max, stage) => Math.max(game.stages.indexOf(stage), max), 0)
   if (maxIndex + CREATE_DISTANCE > game.stages.length) {
     const createCount = maxIndex + CREATE_DISTANCE - game.stages.length
-    Array(createCount).fill(null).forEach(() => add(game))
+    if (game.players.length === 1 && lastStage(game).milage >= 50000) {
+      add(game, goal(game))
+    } else {
+      Array(createCount).fill(null).forEach(() => add(game))
+    }
   }
 }
 
