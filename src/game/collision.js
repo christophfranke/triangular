@@ -15,7 +15,7 @@ const RANGE = 30
 const SQ_RANGE = RANGE * RANGE
 const BOUNCYNESS = 0.1
 const FRICTION = 0.5
-const SHIELD_FORCE = 0.15
+const SHIELD_FORCE = 0.0
 const intensity = distance => distance <= 0 ? RANGE : Math.min(RANGE / distance, RANGE)
 
 const triggerLine = (point1, point2, fn) => {
@@ -206,7 +206,8 @@ const plane = (point, direction) => {
 const collide = game => {
   // calculate all collision forces
   game.players.filter(player => player.alive).forEach(player => {
-    player.collision = Tree.nodes(game.tree, player.stage)
+    // player.collision = Tree.nodes(game.tree, player.stage)
+    player.collision = []
       .filter(node => node.test(player.position))
       .map(node => node.force(player.position))
       .reduce((collision, force) => ({

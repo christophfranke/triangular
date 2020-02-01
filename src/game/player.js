@@ -164,20 +164,22 @@ const move = game => {
     player.displaySpeed = Math.round(LA.distance(player.speed) * 60)
   })
 
-  // apply all the forces that arise from collision
-  Collision.collide(game)
-
   if (DIE_FROM_COLLISION) {
     dieFromCollision(game)
   }
-
-  // move all players
-  Collision.move(game)
 
   game.players.forEach(player => {
     updatePlayerInput(game, player)
     nextDirection(player)
     nextSpeed(player)
+  })
+  // apply all the forces that arise from collision
+  Collision.collide(game)
+
+  // move all players
+  Collision.move(game)
+
+  game.players.forEach(player => {
     player.milage = milage(player)
     player.points = game.stages.filter(stage => stage.owner === player).length
   })
