@@ -1,10 +1,11 @@
 import Player from './player'
 import Collision from './collision'
 import LA from './la'
+import Stage from './stage'
 
-const COLLISION_FACTOR = -1000
-const Q = 1
-const INPUTS = Array(5).fill(20)
+const COLLISION_FACTOR = -100000
+const Q = 0.9875
+const INPUTS = Array(1).fill(30)
 
 let positions = []
 let maxValue = {}
@@ -33,14 +34,19 @@ const createFakePlayer = (player, override) => ({
 })
 
 const stageDirection = stage => LA.normalize(LA.rotate90(LA.subtract(stage.rightLine.point1, stage.leftLine.point1)))
+const pointDirection = (stage, point) => {
+  let currentStage = stage
+  while (currentStage && !Stage.contains(currentStage, point)) {
+    currentStage = stage.nextStage
+  }
+
+  return currentStage ? stageDirection(currentStage) : LA.vector(0, -1)
+}
 
 const evaluate = (game, player) => {
-  // const fakePlayer = createFakePlayer(player, { position: LA.add(player.position, player.speed) })
-  // const value = (Player.milage(fakePlayer)) - (player.stage ? player.stage.milage : 0) + LA.sqDistance(player.speed)
-  const value = (player.stage ? LA.product(player.speed, stageDirection(player.stage)) : LA.distance(player.speed)) +
-    LA.distance(player.speed)
+  const value = LA.product(player.speed, pointDirection(player.stage, player.position))
   if (Collision.intersectsAny(game, player)) {
-    return COLLISION_FACTOR * value
+    return COLLISION_FACTOR * Math.abs(value)
   }
 
   return value
@@ -52,19 +58,20 @@ const evaluateInput = (game, player) => {
   return evaluate(game, player)
 }
 
+const clamp = (min, max, value) => Math.max(Math.min(max, value), min)
 const next = ({ n, m }) => n === INPUTS[m] ? { n: 0, m: m + 1 } : { n: n + 1, m }
-const goDeeper = (score, iter) =>
-  score > 0.5 * (maxValue[iteration(iter)] || 0) &&
+const goDeeper = (score, speed, iter) =>
+  score > clamp(0.2, 0.6, 1 - 60 * speed / 1000) * (maxValue[iteration(iter)] || 0) &&
   iter.m < INPUTS.length
-const iteration = ({ m, n }) => 35 * m + n
+const iteration = ({ m, n }) => 100 * m + n
 const samePlayer = (game, player, iter = { n: 0, m: 0 }) => {
   const fakePlayer = createFakePlayer(player)
   fakePlayer.value = evaluateInput(game, fakePlayer)
   fakePlayer.position = LA.add(fakePlayer.position, fakePlayer.speed)
   const score = fakePlayer.value + (player.value || 0)
   maxValue[iteration(iter)] = Math.max(maxValue[iteration(iter)] || 0, score)
-  positions.push(fakePlayer.position)
-  const nextValue = goDeeper(score, iter)
+  // positions.push(fakePlayer.position)
+  const nextValue = goDeeper(score, LA.distance(fakePlayer.speed), iter)
     ? (iter.n > 0 ? samePlayer(game, fakePlayer, next(iter)).value : bestPlayer(game, fakePlayer, next(iter)).value) : 0
   fakePlayer.value += Q * nextValue
 
@@ -82,8 +89,8 @@ const bestPlayer = (game, player, iter = { n: 0, m: 0 }) => {
       fakePlayer.position = LA.add(fakePlayer.position, fakePlayer.speed)
       const score = fakePlayer.value + (player.value || 0)
       maxValue[iteration(iter)] = Math.max(maxValue[iteration(iter)] || 0, score)
-      positions.push(fakePlayer.position)
-      const nextValue = goDeeper(score, iter)
+      // positions.push(fakePlayer.position)
+      const nextValue = goDeeper(score, LA.distance(fakePlayer.speed), iter)
         ? (iter.n > 0 ? samePlayer(game, fakePlayer, next(iter)).value : bestPlayer(game, fakePlayer, next(iter)).value) : 0
       fakePlayer.value += Q * nextValue
 

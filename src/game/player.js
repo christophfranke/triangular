@@ -29,8 +29,7 @@ const PLAYERS = [{
     b: 255
   },
   left: 'x',
-  right: 'c',
-  type: 'ai'
+  right: 'c'
 }, {
   color: {
     r: 255,
@@ -54,8 +53,7 @@ const PLAYERS = [{
     b: 255
   },
   left: '0',
-  right: 'p',
-  type: 'ai'
+  right: 'p'
 }]
 
 const create = (tree, player) => {

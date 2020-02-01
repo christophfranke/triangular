@@ -282,6 +282,22 @@ const createBeyond = game => {
   }
 }
 
+const contains = (stage, point) => {
+  const center = LA.lerp(LA.lerp(stage.leftLine.point1, stage.leftLine.point2, 0.5), LA.lerp(stage.rightLine.point1, stage.rightLine.point2, 0.5))
+  const line = {
+    point1: point,
+    point2: center
+  }
+
+  return !(LA.intersect(line, stage.leftLine) || LA.intersect(line, stage.rightLine) || LA.intersect(line, {
+    point1: stage.leftLine.point1,
+    point2: stage.rightLine.point1
+  }) || LA.intersect(line, {
+    point1: stage.leftLine.point2,
+    point2: stage.rightLine.point2
+  }))
+}
+
 export default {
   allLines,
   cage,
@@ -289,5 +305,6 @@ export default {
   add,
   dropBehind,
   createBeyond,
+  contains,
   START_CAGE
 }

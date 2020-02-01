@@ -13,9 +13,9 @@ const ABSOLUT_MAX = {
 
 const RANGE = 30
 const SQ_RANGE = RANGE * RANGE
-const BOUNCYNESS = 0.1
-const FRICTION = 0.5
-const SHIELD_FORCE = 0.0
+const BOUNCYNESS = 0.3
+const FRICTION = 0.3
+const SHIELD_FORCE = 0.1
 const intensity = distance => distance <= 0 ? RANGE : Math.min(RANGE / distance, RANGE)
 
 const triggerLine = (point1, point2, fn) => {
@@ -206,8 +206,7 @@ const plane = (point, direction) => {
 const collide = game => {
   // calculate all collision forces
   game.players.filter(player => player.alive).forEach(player => {
-    // player.collision = Tree.nodes(game.tree, player.stage)
-    player.collision = []
+    player.collision = Tree.nodes(game.tree, player.stage)
       .filter(node => node.test(player.position))
       .map(node => node.force(player.position))
       .reduce((collision, force) => ({
@@ -226,7 +225,6 @@ const collide = game => {
 const move = game => {
   game.players.filter(player => player.alive).forEach(player => {
     const nodes = Tree.nodes(game.tree)
-    // console.log(player.stage && player.stage.id, game.tree.stages[player.stage && player.stage.id])
     const position = player.position
     const { speed, displacement, intensity } = nodes.filter(node => node.displace).reduce((current, node) => {
       const result = node.displace(position, current.speed, current.displacement)
