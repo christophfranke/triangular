@@ -24,7 +24,7 @@ const update = game => {
     stopSoon(game)
   }
 
-  if (game.players.some(player => player.points >= WINNING_POINTS)) {
+  if (game.players.length > 1 && game.players.some(player => player.points >= WINNING_POINTS)) {
     game.winner = game.players.reduce((winner, player) => (winner && winner.points) > player.points ? winner : player)
     game.players.filter(p => p !== game.winner).forEach(other => {
       other.alive = false
