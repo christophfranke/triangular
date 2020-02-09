@@ -28,7 +28,11 @@ const create = canvas => {
   }
 }
 
-const onScreen = (game, point) => point.x >= 0 && point.x <= game.renderer.canvas.width && point.y >= 0 && point.y <= game.renderer.canvas.height
+const ON_SCREEN_MARGIN_FACTOR = 1
+const onScreen = (game, point) => point.x >= -ON_SCREEN_MARGIN_FACTOR * game.renderer.canvas.width &&
+  point.x <= (1 + ON_SCREEN_MARGIN_FACTOR) * game.renderer.canvas.width &&
+  point.y >= -ON_SCREEN_MARGIN_FACTOR * game.renderer.canvas.height &&
+  point.y <= (1 + ON_SCREEN_MARGIN_FACTOR) * game.renderer.canvas.height
 
 const drawPlayers = game => {
   game.players.forEach(player => {

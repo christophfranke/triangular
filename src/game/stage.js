@@ -2,12 +2,13 @@ import LA from './la'
 import Collision from './collision'
 import Tree from './tree'
 
-const MIN_WIDTH = 150
-const MAX_WIDTH = 1000
-const LINE_MIN_LENGTH = 500
-const LINE_MAX_LENGTH = 1000
-const MAX_ANGLE_CHANGE = 0.3 * Math.PI
-const MAX_ATTEMPT = 2
+const MIN_WIDTH = 100
+const MAX_WIDTH = 2500
+const LINE_MIN_LENGTH = 200
+const LINE_MAX_LENGTH = 2500
+const MAX_ANGLE_CHANGE = 0.4 * Math.PI
+const SINGLE_PLAYER_LENGTH = 50000
+const MAX_ATTEMPT = 3
 const START_CAGE = {
   min: LA.v(),
   max: LA.w(MAX_WIDTH)
@@ -58,24 +59,24 @@ const newLines = (left, right, newDirection, length, width) => {
   }
 }
 
-const next = game => {
+const next = (game, forceLength) => {
   const { left, right, direction } = current(game)
   const { newDirection, length, width } = random(direction)
 
   return {
-    length,
-    ...newLines(left, right, newDirection, length, width)
+    length: forceLength || length,
+    ...newLines(left, right, newDirection, forceLength || length, width)
   }
 }
 
 const test = (game, ...lines) => lines.every(oneLine => allLines(game).every(otherLine => !LA.intersect(oneLine, otherLine)))
 
-const create = game => {
+const create = (game, forceLength) => {
   let attempt = 0
   while (attempt < MAX_ATTEMPT) {
     attempt += 1
 
-    const { leftLine, rightLine, length } = next(game)
+    const { leftLine, rightLine, length } = next(game, forceLength)
     if (test(game, leftLine, rightLine)) {
       const result = {
         leftLine,
@@ -153,6 +154,8 @@ const goal = game => {
     goal: true,
     milage: lastStage(game).milage,
     onEnter: player => {
+      player.winner = true
+      player.milage = lastStage(game).milage
       game.stopSoon = true
       game.stages.forEach(stage => {
         stage.owner = player
@@ -269,12 +272,13 @@ const dropBehind = game => {
   }
 }
 
-const CREATE_DISTANCE = 8
+const CREATE_DISTANCE = 15
 const createBeyond = game => {
   const maxIndex = game.stages.filter(stage => stage.players.length > 0).reduce((max, stage) => Math.max(game.stages.indexOf(stage), max), 0)
   if (maxIndex + CREATE_DISTANCE > game.stages.length) {
     const createCount = maxIndex + CREATE_DISTANCE - game.stages.length
-    if (game.players.length === 1 && lastStage(game).milage >= 50000) {
+    if (game.players.length === 1 && lastStage(game).milage + LINE_MAX_LENGTH >= SINGLE_PLAYER_LENGTH) {
+      add(game, create(game, SINGLE_PLAYER_LENGTH - lastStage(game).milage))
       add(game, goal(game))
     } else {
       Array(createCount).fill(null).forEach(() => add(game))

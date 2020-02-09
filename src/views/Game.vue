@@ -54,7 +54,7 @@ export default {
         })
         score = Math.min((this.game && this.game.stages.filter(stage => stage.owner === best).length) || 0, Game.WINNING_POINTS)
       } else {
-        score = Math.max(Math.floor(this.milage / 10000), 0) || 0
+        score = Math.min(5, Math.max(Math.floor(this.milage / 10000), 0) || 0)
       }
 
       return Array(score).fill({
@@ -150,7 +150,7 @@ export default {
           this.speed = this.game.players[0].displaySpeed
           this.maxSpeed = this.speed ? Math.max(this.maxSpeed, this.speed) : this.maxSpeed
 
-          if (player.alive) {
+          if (player.alive && !player.winner) {
             this.tick = this.game && this.game.tick
             this.milage = this.game && this.game.players[0] && this.game.players[0].milage
           }
