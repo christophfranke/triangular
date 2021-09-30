@@ -6,13 +6,13 @@ import Util from './util'
 import Stage from './stage'
 import AI from './ai'
 
-const THRUST = 0.15
+const THRUST = 0.25
 const TURN = 0.0175 * 2 * Math.PI
-const DRAG = 0.03
+const DRAG = 0.04
 const VEHICLE_FRACTION = 0.8
-const BREAK_DRAG = 3
+const BREAK_DRAG = 2.0
 const MAX_COLLISION_POWER = 50
-const DIE_FROM_COLLISION = false
+const DIE_FROM_COLLISION = true
 
 const PLAYERS = [{
   color: {
@@ -95,7 +95,7 @@ const color = (player, alpha = 1) => Util.rgba(player.color.r, player.color.g, p
 
 const dieFromCollision = game => {
   game.players.forEach(player => {
-    player.alive = player.alive && player.collision.intensity <= MAX_COLLISION_POWER
+    player.alive = player.alive && (!player.collision || player.collision.intensity <= MAX_COLLISION_POWER)
   })
 
   game.players.filter(player => !player.alive && player.dot).forEach(player => {

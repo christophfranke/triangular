@@ -2,11 +2,11 @@ import LA from './la'
 import Collision from './collision'
 import Tree from './tree'
 
-const MIN_WIDTH = 100
+const MIN_WIDTH = 200
 const MAX_WIDTH = 2500
 const LINE_MIN_LENGTH = 200
 const LINE_MAX_LENGTH = 2500
-const MAX_ANGLE_CHANGE = 0.4 * Math.PI
+const MAX_ANGLE_CHANGE = 0.3 * Math.PI
 const SINGLE_PLAYER_LENGTH = 50000
 const MAX_ATTEMPT = 3
 const START_CAGE = {

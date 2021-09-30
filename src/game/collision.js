@@ -11,11 +11,11 @@ const ABSOLUT_MAX = {
   y: 10000
 }
 
-const RANGE = 30
+const RANGE = 100
 const SQ_RANGE = RANGE * RANGE
 const BOUNCYNESS = 0.3
 const FRICTION = 0.3
-const SHIELD_FORCE = 0.1
+const SHIELD_FORCE = 0.2
 const intensity = distance => distance <= 0 ? RANGE : Math.min(RANGE / distance, RANGE)
 
 const triggerLine = (point1, point2, fn) => {
