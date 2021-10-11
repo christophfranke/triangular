@@ -3,10 +3,10 @@ import Collision from './collision'
 import Tree from './tree'
 
 const MIN_WIDTH = 200
-const MAX_WIDTH = 2500
+const MAX_WIDTH = 1000
 const LINE_MIN_LENGTH = 200
-const LINE_MAX_LENGTH = 2500
-const MAX_ANGLE_CHANGE = 0.3 * Math.PI
+const LINE_MAX_LENGTH = 1000
+const MAX_ANGLE_CHANGE = 0.4 * Math.PI
 const SINGLE_PLAYER_LENGTH = 50000
 const MAX_ATTEMPT = 3
 const START_CAGE = {
@@ -72,6 +72,7 @@ const next = (game, forceLength) => {
 const test = (game, ...lines) => lines.every(oneLine => allLines(game).every(otherLine => !LA.intersect(oneLine, otherLine)))
 
 const create = (game, forceLength) => {
+  console.warn('create')
   let attempt = 0
   while (attempt < MAX_ATTEMPT) {
     attempt += 1

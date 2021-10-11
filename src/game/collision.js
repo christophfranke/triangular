@@ -11,7 +11,7 @@ const ABSOLUT_MAX = {
   y: 10000
 }
 
-const RANGE = 100
+const RANGE = 50
 const SQ_RANGE = RANGE * RANGE
 const BOUNCYNESS = 0.3
 const FRICTION = 0.3
