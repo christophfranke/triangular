@@ -6,7 +6,7 @@ import Stage from './stage'
 const SIGHT_RANGE = 200
 const DIRECTION_RANGE = 1000
 const CAMERA_MARGIN = 50
-const CAMERA_SMOOTHING = 0.98
+const CAMERA_SMOOTHING = 0.99
 
 const rect = (ctx, x, y, width, height, color = null) => {
   if (color) {

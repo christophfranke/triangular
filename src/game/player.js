@@ -6,8 +6,8 @@ import Util from './util'
 import Stage from './stage'
 import AI from './ai'
 
-const THRUST = 0.2
-const TURN = 0.0175 * 2 * Math.PI
+const THRUST = 0.1
+const TURN = 0.01 * 2 * Math.PI
 const DRAG = 0.06
 const VEHICLE_FRACTION = 0.97
 const BREAK_DRAG = 2.0
